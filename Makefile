@@ -62,7 +62,7 @@ win: $(OUT)/MD2HTMLW.EXE $(if $(WIN_SRC),$(OUT)/MINUTA.EXE)
 dos: $(OUT)/MD2HTMLD.EXE
 
 $(NT_DIR)/%.obj: %.c | $(NT_DIR)
-	$(OWCC) -bnt -c $(OW_COMMON) $(OW_WARN) -I$(WATCOM)/h/nt -o $@ $<
+	$(OWCC) -bnt -c $(OW_COMMON) $(OW_WARN) -I$(WATCOM)/h/nt -DWINVER=0x0400 -D_WIN32_WINNT=0x0400 -o $@ $<
 
 $(DOS_DIR)/%.obj: %.c | $(DOS_DIR)
 	$(OWCC) -bdos32a -c $(OW_COMMON) $(OW_WARN) -o $@ $<

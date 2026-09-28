@@ -48,3 +48,39 @@ Decisions:
 - Preservation of characters outside CP1252 works per line: an unchanged line
   is written back byte for byte; a line that was edited is written from the
   editor text, so its `?` placeholders become literal `?`.
+
+## Milestone 3 — window, RichEdit, file I/O, settings: done
+
+- `src/win/`: `main.c` (window, menus, accelerators, title, autosave timer),
+  `editor.c` (RichEdit 2.0 `RichEdit20A` loaded with `LoadLibrary`, centered
+  64-column text via `EM_SETRECT`, 1.5 line spacing, streaming in/out),
+  `files.c` (New/Open/Save/Save As through the common dialogs, temp-file
+  writes, `name.md~` autosave), `settings.c` (`MINUTA.INI` beside the exe).
+- `MINUTA.EXE` imports only KERNEL32, USER32, GDI32 and COMDLG32; 173 KB.
+- `tests/vm/files.sh` on win98 (`build/vm-files.log`):
+  - Acceptance 1: started from Start > Run with `D:\TESTE.MD`, the window is
+    painted with the document 0.76–0.88 s after Enter (measured on the host
+    as the last screen change). Screenshots `m3-open-cp1252.png`,
+    `m3-open-utf8.png`, `m3-open-unicode.png` (characters outside CP1252
+    shown as `?`).
+  - Acceptance 5: saved files pulled back through the floppy and compared
+    byte for byte: CP1252 → CP1252, UTF-8 (LF) → UTF-8, UTF-8 with
+    characters outside CP1252 → identical, CP1252 → UTF-8, UTF-8 → CP1252
+    (LF kept), and an edited UTF-8 file whose untouched lines keep their
+    original bytes. Autosave writes `U8.MD~` with the unsaved edit and a
+    save removes it. `m3-settings-ini.png` shows the INI written on exit.
+
+Decisions:
+- Title bar uses `name - Minuta` and a leading `*` when modified: the Windows
+  98 caption font (MS Sans Serif) has no glyph for CP1252's `•` and `—` and
+  draws a bar (seen in the VM).
+- Save As picks the encoding with the "Save as type" list (UTF-8 or
+  Windows-1252); converting to Windows-1252 drops what doesn't fit.
+- Launching from the MS-DOS Prompt adds ~1.7 s of console overhead
+  (Notepad: 1.75 s the same way), so the start time is measured from Run.
+- The VM guest clock runs 3–4× slower than real time, so the 30 s autosave
+  shows up after ~100 s of host time.
+- Untitled documents autosave to `UNTITLED.MD~` beside the exe.
+
+Open issues:
+- Cold start inside the process is ~330 ms, mostly loading RICHED20.DLL.

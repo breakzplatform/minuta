@@ -1,0 +1,104 @@
+#include <windows.h>
+#include "resource.h"
+
+IDI_MINUTA ICON "minuta.ico"
+
+IDR_MENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N", IDM_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O", IDM_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S", IDM_FILE_SAVE
+        MENUITEM "Save &As...\tCtrl+Shift+S", IDM_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Export HTML...\tCtrl+E", IDM_FILE_EXPORT
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+F4", IDM_FILE_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z", IDM_EDIT_UNDO
+        MENUITEM "&Redo\tCtrl+Y", IDM_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X", IDM_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C", IDM_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V", IDM_EDIT_PASTE
+        MENUITEM "Select &All\tCtrl+A", IDM_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Find...\tCtrl+F", IDM_EDIT_FIND
+        MENUITEM "Find &Next\tF3", IDM_EDIT_FIND_NEXT
+        MENUITEM "R&eplace...\tCtrl+H", IDM_EDIT_REPLACE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Preview\tCtrl+R", IDM_VIEW_PREVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "&Focus Mode\tCtrl+Shift+F", IDM_VIEW_FOCUS
+        MENUITEM "Focus on &Paragraph\tCtrl+Shift+P", IDM_VIEW_FOCUS_SCOPE
+        MENUITEM "&Typewriter Scrolling\tCtrl+Shift+T", IDM_VIEW_TYPEWRITER
+        MENUITEM "&Night Theme\tCtrl+Shift+N", IDM_VIEW_NIGHT
+        MENUITEM SEPARATOR
+        MENUITEM "&Word Count\tCtrl+Shift+W", IDM_VIEW_COUNTERS
+        MENUITEM SEPARATOR
+        MENUITEM "F&ont...", IDM_VIEW_FONT
+        MENUITEM "&Larger Text\tCtrl+=", IDM_VIEW_FONT_LARGER
+        MENUITEM "&Smaller Text\tCtrl+-", IDM_VIEW_FONT_SMALLER
+        MENUITEM "W&ider Column\tCtrl+]", IDM_VIEW_COLUMN_WIDER
+        MENUITEM "Na&rrower Column\tCtrl+[", IDM_VIEW_COLUMN_NARROWER
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About Minuta", IDM_HELP_ABOUT
+    END
+END
+
+IDR_ACCELERATORS ACCELERATORS
+BEGIN
+    "N", IDM_FILE_NEW, VIRTKEY, CONTROL
+    "O", IDM_FILE_OPEN, VIRTKEY, CONTROL
+    "S", IDM_FILE_SAVE, VIRTKEY, CONTROL
+    "S", IDM_FILE_SAVE_AS, VIRTKEY, CONTROL, SHIFT
+    "E", IDM_FILE_EXPORT, VIRTKEY, CONTROL
+    "Z", IDM_EDIT_UNDO, VIRTKEY, CONTROL
+    "Y", IDM_EDIT_REDO, VIRTKEY, CONTROL
+    "F", IDM_EDIT_FIND, VIRTKEY, CONTROL
+    VK_F3, IDM_EDIT_FIND_NEXT, VIRTKEY
+    "H", IDM_EDIT_REPLACE, VIRTKEY, CONTROL
+    "R", IDM_VIEW_PREVIEW, VIRTKEY, CONTROL
+    VK_ESCAPE, IDM_VIEW_ESCAPE, VIRTKEY
+    "F", IDM_VIEW_FOCUS, VIRTKEY, CONTROL, SHIFT
+    "P", IDM_VIEW_FOCUS_SCOPE, VIRTKEY, CONTROL, SHIFT
+    "T", IDM_VIEW_TYPEWRITER, VIRTKEY, CONTROL, SHIFT
+    "N", IDM_VIEW_NIGHT, VIRTKEY, CONTROL, SHIFT
+    "W", IDM_VIEW_COUNTERS, VIRTKEY, CONTROL, SHIFT
+    0xBB, IDM_VIEW_FONT_LARGER, VIRTKEY, CONTROL
+    0xBD, IDM_VIEW_FONT_SMALLER, VIRTKEY, CONTROL
+    0xDD, IDM_VIEW_COLUMN_WIDER, VIRTKEY, CONTROL
+    0xDB, IDM_VIEW_COLUMN_NARROWER, VIRTKEY, CONTROL
+END
+
+1 VERSIONINFO
+FILEVERSION 0,1,0,0
+PRODUCTVERSION 0,1,0,0
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", "Joselito\0"
+            VALUE "FileDescription", "Minuta Markdown editor\0"
+            VALUE "FileVersion", "0.1.0\0"
+            VALUE "InternalName", "MINUTA\0"
+            VALUE "OriginalFilename", "MINUTA.EXE\0"
+            VALUE "ProductName", "Minuta\0"
+            VALUE "ProductVersion", "0.1.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
