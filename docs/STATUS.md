@@ -23,3 +23,28 @@ Decisions:
 - `--name value` is accepted besides md4c's `--name=value`.
 - Only a BOM switches input to UTF-8 (as the spec says); a UTF-8 file without
   BOM needs `--codepage utf8`.
+
+## Milestone 2 — core: encoding, span scanner, RTF renderer: done
+
+- `src/core/`: `encoding` (UTF-8/CP1252/CP850), `document` (file decode and
+  encode: encoding detection, line endings kept, original bytes of untouched
+  lines with characters outside CP1252 preserved), `scanner` (per-line
+  Markdown span scanner for syntax dimming, with fenced-code state across
+  lines), `rtf` (md4c → RTF for the preview, with source ↔ rendered position
+  anchors), `stats` (words, characters, reading time, sentence bounds for
+  focus mode), `buffer`.
+- Acceptance 9: `make test` → `40 tests, 0 failed checks` plus the md2html
+  regression tests, built with clang `-Wall -Wextra -Wpedantic -Werror`. All
+  of `src/core` and `src/cli` compile with Open Watcom `-Wall` (level 4)
+  `-Werror` without diagnostics.
+
+Decisions:
+- The span scanner works one line at a time; emphasis spanning a soft line
+  break is not dimmed. Setext headings dim the underline but do not bold the
+  text above it; indented code blocks are not styled (they can't be told
+  apart from list continuations without the whole document).
+- Fenced code is only recognized at the top level (not inside quotes/lists).
+- Saving keeps the file's most frequent line ending for every line.
+- Preservation of characters outside CP1252 works per line: an unchanged line
+  is written back byte for byte; a line that was edited is written from the
+  editor text, so its `?` placeholders become literal `?`.

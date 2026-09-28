@@ -22,6 +22,7 @@ INCLUDES := -Ivendor/md4c/src -Ivendor/md4c/md2html -Isrc/core
 MD4C_SRC := vendor/md4c/src/md4c.c vendor/md4c/src/md4c-html.c vendor/md4c/src/entity.c
 CORE_SRC := $(wildcard src/core/*.c)
 CLI_SRC := src/cli/md2html.c vendor/md4c/md2html/cmdline.c
+CLI_CORE_SRC := src/core/encoding.c
 WIN_SRC := $(wildcard src/win/*.c)
 WIN_RC := src/win/minuta.rc
 TEST_SRC := $(wildcard tests/unit/*.c)
@@ -43,9 +44,10 @@ HOST_DIR := $(BUILD)/host
 NT_MD4C := $(call objects,$(NT_DIR),$(MD4C_SRC),obj)
 NT_CORE := $(call objects,$(NT_DIR),$(CORE_SRC),obj)
 NT_CLI := $(call objects,$(NT_DIR),$(CLI_SRC),obj)
+NT_CLI_CORE := $(call objects,$(NT_DIR),$(CLI_CORE_SRC),obj)
 NT_WIN := $(call objects,$(NT_DIR),$(WIN_SRC),obj)
 DOS_MD4C := $(call objects,$(DOS_DIR),$(MD4C_SRC),obj)
-DOS_CORE := $(call objects,$(DOS_DIR),$(CORE_SRC),obj)
+DOS_CORE := $(call objects,$(DOS_DIR),$(CLI_CORE_SRC),obj)
 DOS_CLI := $(call objects,$(DOS_DIR),$(CLI_SRC),obj)
 
 OW_WARN := $(OW_STRICT)
@@ -72,7 +74,7 @@ $(OUT)/MINUTA.EXE: $(NT_WIN) $(NT_CORE) $(NT_MD4C) $(NT_DIR)/minuta.res | $(OUT)
 	$(OWCC) -bnt_win -s -o $@ $(NT_WIN) $(NT_CORE) $(NT_MD4C) -Wl,"option resource=$(NT_DIR)/minuta.res" \
 		-Wl,"library comctl32.lib,comdlg32.lib"
 
-$(OUT)/MD2HTMLW.EXE: $(NT_CLI) $(NT_CORE) $(NT_MD4C) | $(OUT)
+$(OUT)/MD2HTMLW.EXE: $(NT_CLI) $(NT_CLI_CORE) $(NT_MD4C) | $(OUT)
 	$(OWCC) -bnt -s -o $@ $^
 
 $(OUT)/MD2HTMLD.EXE: $(DOS_CLI) $(DOS_CORE) $(DOS_MD4C) | $(OUT)
@@ -89,17 +91,23 @@ HOST_CLI := $(call objects,$(HOST_DIR),$(CLI_SRC),o)
 $(HOST_MD4C) $(HOST_DIR)/cmdline.o: HOST_WARN := vendor
 
 $(HOST_DIR)/%.o: %.c | $(HOST_DIR)
-	$(CC) -c $(if $(HOST_WARN),$(HOST_VENDOR_CFLAGS),$(HOST_CFLAGS)) -Itests/unit -o $@ $<
+	$(CC) -c -MMD -MP $(if $(HOST_WARN),$(HOST_VENDOR_CFLAGS),$(HOST_CFLAGS)) -Itests/unit -o $@ $<
 
 $(HOST_DIR)/unit-tests: $(HOST_TESTS) $(HOST_CORE) $(HOST_MD4C)
 	$(CC) -o $@ $^
 
-$(HOST_DIR)/md2html: $(HOST_CLI) $(HOST_CORE) $(HOST_MD4C)
+$(HOST_DIR)/md2html: $(HOST_CLI) $(call objects,$(HOST_DIR),$(CLI_CORE_SRC),o) $(HOST_MD4C)
 	$(CC) -o $@ $^
 
 test: $(HOST_DIR)/unit-tests $(HOST_DIR)/md2html
 	$(HOST_DIR)/unit-tests
 	tests/cli/run.sh $(HOST_DIR)/md2html
+
+-include $(wildcard $(HOST_DIR)/*.d)
+
+# Watcom has no dependency output; rebuild its objects when any header changes.
+ALL_HEADERS := $(wildcard src/*/*.h vendor/md4c/src/*.h)
+$(NT_DIR)/%.obj $(DOS_DIR)/%.obj: $(ALL_HEADERS)
 
 $(NT_DIR) $(DOS_DIR) $(HOST_DIR) $(OUT):
 	mkdir -p $@
