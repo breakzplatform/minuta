@@ -1,0 +1,108 @@
+# Minuta build.
+#   make win   MINUTA.EXE (Win32 GUI) and MD2HTMLW.EXE (Win32 console)
+#   make dos   MD2HTMLD.EXE (DOS/32A, self-contained)
+#   make test  core unit tests, built natively
+# Open Watcom 2.0 lives in ~/vms/retro/toolchain by default; override WATCOM.
+
+WATCOM ?= $(HOME)/vms/retro/toolchain/ow2
+export WATCOM
+export PATH := $(WATCOM)/armo64:$(PATH):$(WATCOM)/binw
+export INCLUDE := $(WATCOM)/h
+
+CC := clang
+OWCC := $(WATCOM)/armo64/owcc
+WRC := $(WATCOM)/armo64/wrc
+
+BUILD := build
+OUT := $(BUILD)/bin
+
+MD4C_DEFINES := -DMD_VERSION_MAJOR=0 -DMD_VERSION_MINOR=6 -DMD_VERSION_RELEASE=0
+INCLUDES := -Ivendor/md4c/src -Ivendor/md4c/md2html -Isrc/core
+
+MD4C_SRC := vendor/md4c/src/md4c.c vendor/md4c/src/md4c-html.c vendor/md4c/src/entity.c
+CORE_SRC := $(wildcard src/core/*.c)
+CLI_SRC := src/cli/md2html.c vendor/md4c/md2html/cmdline.c
+WIN_SRC := $(wildcard src/win/*.c)
+WIN_RC := src/win/minuta.rc
+TEST_SRC := $(wildcard tests/unit/*.c)
+
+vpath %.c src/core src/cli src/win vendor/md4c/src vendor/md4c/md2html tests/unit
+
+objects = $(addprefix $(1)/,$(notdir $(2:.c=.$(3))))
+
+# Our code builds at warning level 4 with warnings as errors; vendored md4c
+# keeps its upstream code, so it only gets the default level.
+OW_COMMON := -std=c99 -O2 -s $(MD4C_DEFINES) $(INCLUDES)
+OW_STRICT := -Wall -Werror
+OW_VENDOR := -Wlevel=1 -Wno-n=107
+
+NT_DIR := $(BUILD)/nt
+DOS_DIR := $(BUILD)/dos
+HOST_DIR := $(BUILD)/host
+
+NT_MD4C := $(call objects,$(NT_DIR),$(MD4C_SRC),obj)
+NT_CORE := $(call objects,$(NT_DIR),$(CORE_SRC),obj)
+NT_CLI := $(call objects,$(NT_DIR),$(CLI_SRC),obj)
+NT_WIN := $(call objects,$(NT_DIR),$(WIN_SRC),obj)
+DOS_MD4C := $(call objects,$(DOS_DIR),$(MD4C_SRC),obj)
+DOS_CORE := $(call objects,$(DOS_DIR),$(CORE_SRC),obj)
+DOS_CLI := $(call objects,$(DOS_DIR),$(CLI_SRC),obj)
+
+OW_WARN := $(OW_STRICT)
+VENDOR_OBJS := $(NT_MD4C) $(DOS_MD4C) $(NT_DIR)/cmdline.obj $(DOS_DIR)/cmdline.obj
+$(VENDOR_OBJS): OW_WARN := $(OW_VENDOR)
+
+.PHONY: all win dos test clean
+
+all: win dos
+
+win: $(OUT)/MD2HTMLW.EXE $(if $(WIN_SRC),$(OUT)/MINUTA.EXE)
+dos: $(OUT)/MD2HTMLD.EXE
+
+$(NT_DIR)/%.obj: %.c | $(NT_DIR)
+	$(OWCC) -bnt -c $(OW_COMMON) $(OW_WARN) -I$(WATCOM)/h/nt -o $@ $<
+
+$(DOS_DIR)/%.obj: %.c | $(DOS_DIR)
+	$(OWCC) -bdos32a -c $(OW_COMMON) $(OW_WARN) -o $@ $<
+
+$(NT_DIR)/minuta.res: $(WIN_RC) $(wildcard src/win/*.h) | $(NT_DIR)
+	$(WRC) -q -r -bt=nt -i=$(WATCOM)/h/nt -i=src/win -fo=$@ $<
+
+$(OUT)/MINUTA.EXE: $(NT_WIN) $(NT_CORE) $(NT_MD4C) $(NT_DIR)/minuta.res | $(OUT)
+	$(OWCC) -bnt_win -s -o $@ $(NT_WIN) $(NT_CORE) $(NT_MD4C) -Wl,"option resource=$(NT_DIR)/minuta.res" \
+		-Wl,"library comctl32.lib,comdlg32.lib"
+
+$(OUT)/MD2HTMLW.EXE: $(NT_CLI) $(NT_CORE) $(NT_MD4C) | $(OUT)
+	$(OWCC) -bnt -s -o $@ $^
+
+$(OUT)/MD2HTMLD.EXE: $(DOS_CLI) $(DOS_CORE) $(DOS_MD4C) | $(OUT)
+	$(OWCC) -bdos32a -s -o $@ $^
+
+# Native build for the unit tests and for comparing md2html output on the Mac.
+HOST_CFLAGS := -std=c99 -O1 -g -Wall -Wextra -Wpedantic -Werror $(MD4C_DEFINES) $(INCLUDES)
+HOST_VENDOR_CFLAGS := -std=c99 -O1 -g -w $(MD4C_DEFINES) $(INCLUDES)
+HOST_MD4C := $(call objects,$(HOST_DIR),$(MD4C_SRC),o)
+HOST_CORE := $(call objects,$(HOST_DIR),$(CORE_SRC),o)
+HOST_TESTS := $(call objects,$(HOST_DIR),$(TEST_SRC),o)
+HOST_CLI := $(call objects,$(HOST_DIR),$(CLI_SRC),o)
+
+$(HOST_MD4C) $(HOST_DIR)/cmdline.o: HOST_WARN := vendor
+
+$(HOST_DIR)/%.o: %.c | $(HOST_DIR)
+	$(CC) -c $(if $(HOST_WARN),$(HOST_VENDOR_CFLAGS),$(HOST_CFLAGS)) -Itests/unit -o $@ $<
+
+$(HOST_DIR)/unit-tests: $(HOST_TESTS) $(HOST_CORE) $(HOST_MD4C)
+	$(CC) -o $@ $^
+
+$(HOST_DIR)/md2html: $(HOST_CLI) $(HOST_CORE) $(HOST_MD4C)
+	$(CC) -o $@ $^
+
+test: $(HOST_DIR)/unit-tests $(HOST_DIR)/md2html
+	$(HOST_DIR)/unit-tests
+	tests/cli/run.sh $(HOST_DIR)/md2html
+
+$(NT_DIR) $(DOS_DIR) $(HOST_DIR) $(OUT):
+	mkdir -p $@
+
+clean:
+	rm -rf $(BUILD)

@@ -1,0 +1,2 @@
+md4c 0.6.0 (https://github.com/mity/md4c, commit c7ba975c34d714966ea910c58a97524e5d674ff7)
+with md4c-watcom.patch applied. Only src/ and md2html/cmdline.* are vendored.
