@@ -2,11 +2,7 @@ name			minuta
 version			@VERSION@
 architecture	@ARCH@
 summary			"A minimal Markdown editor"
-description		"Minuta is a minimal Markdown editor in the spirit of iA Writer: \
-one centered column of monospace text, Markdown syntax kept visible but \
-dimmed, focus mode, typewriter scrolling, full screen and a night theme. \
-It has a preview, HTML export, word count and find, and reads UTF-8 and \
-Windows-1252 files, keeping their encoding and line endings on save."
+description		"Minuta is a minimal Markdown editor in the spirit of iA Writer: one centered column of monospace text, with the Markdown syntax kept visible but dimmed. It has focus mode, typewriter scrolling, full screen, a night theme, a preview, HTML export, word count and find. It reads UTF-8 and Windows-1252 files and keeps their encoding and line endings when saving."
 packager		"Joselito Junior <joselitojunior@gmail.com>"
 vendor			"Joselito Junior"
 licenses {
