@@ -1,7 +1,8 @@
 #include <windows.h>
 #include "resource.h"
 
-IDI_MINUTA ICON "minuta.ico"
+IDI_MINUTA ICON "MINUTA.ICO"
+IDI_DOCUMENT ICON "MINUTADOC.ICO"
 
 IDR_MENU MENU
 BEGIN

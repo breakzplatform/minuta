@@ -3,7 +3,9 @@
 
 #define IDR_MENU                100
 #define IDR_ACCELERATORS        101
-#define IDI_MINUTA              102
+/* Explorer shows the lowest icon ID as the exe icon; 2 is for documents. */
+#define IDI_MINUTA              1
+#define IDI_DOCUMENT            2
 
 #define IDM_FILE_NEW            1001
 #define IDM_FILE_OPEN           1002

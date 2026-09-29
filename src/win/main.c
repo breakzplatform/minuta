@@ -384,7 +384,7 @@ static void command_line_path(const char *command_line, char *path, size_t size)
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, int show)
 {
-    WNDCLASS window_class;
+    WNDCLASSEX window_class;
     MSG message;
     RECT *area;
     char path[MAX_PATH];
@@ -401,14 +401,17 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     app_theme_update();
 
     memset(&window_class, 0, sizeof(window_class));
+    window_class.cbSize = sizeof(window_class);
     window_class.lpfnWndProc = window_procedure;
     window_class.hInstance = instance;
     window_class.hIcon = LoadIcon(instance, MAKEINTRESOURCE(IDI_MINUTA));
+    /* The hand-drawn 16x16 image, not a shrunken 32x32, in the title bar. */
+    window_class.hIconSm = (HICON)LoadImage(instance, MAKEINTRESOURCE(IDI_MINUTA), IMAGE_ICON, 16, 16, 0);
     window_class.hCursor = LoadCursor(NULL, IDC_ARROW);
     window_class.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     window_class.lpszMenuName = MAKEINTRESOURCE(IDR_MENU);
     window_class.lpszClassName = WINDOW_CLASS;
-    if (!RegisterClass(&window_class)) {
+    if (!RegisterClassEx(&window_class)) {
         return 1;
     }
 

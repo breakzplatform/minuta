@@ -67,8 +67,8 @@ $(NT_DIR)/%.obj: %.c | $(NT_DIR)
 $(DOS_DIR)/%.obj: %.c | $(DOS_DIR)
 	$(OWCC) -bdos32a -c $(OW_COMMON) $(OW_WARN) -o $@ $<
 
-$(NT_DIR)/minuta.res: $(WIN_RC) $(wildcard src/win/*.h) | $(NT_DIR)
-	$(WRC) -q -r -bt=nt -i=$(WATCOM)/h/nt -i=src/win -fo=$@ $<
+$(NT_DIR)/minuta.res: $(WIN_RC) $(wildcard src/win/*.h) $(wildcard res/*.ICO) | $(NT_DIR)
+	$(WRC) -q -r -bt=nt -i=$(WATCOM)/h/nt -i=src/win -i=res -fo=$@ $<
 
 $(OUT)/MINUTA.EXE: $(NT_WIN) $(NT_CORE) $(NT_MD4C) $(NT_DIR)/minuta.res | $(OUT)
 	$(OWCC) -bnt_win -s -o $@ $(NT_WIN) $(NT_CORE) $(NT_MD4C) -Wl,"option resource=$(NT_DIR)/minuta.res" \
