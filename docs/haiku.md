@@ -7,11 +7,11 @@ but is drawn in a lighter gray, and not much else on screen. You also get
 focus mode, typewriter scrolling, a night theme, full screen, a preview,
 HTML export, word count and find.
 
-![Minuta on Haiku](shots/haiku/dimming.png)
+![Minuta on Haiku, editing the Hino de Pernambuco](shots/haiku/hino-editor.png)
 
 | | |
 |---|---|
-| ![Preview](shots/haiku/smoke-preview.png) | ![Focus mode](shots/haiku/focus-sentence.png) |
+| ![Preview](shots/haiku/hino-preview.png) | ![Focus mode](shots/haiku/focus-sentence.png) |
 | ![Night theme](shots/haiku/night.png) | ![Full screen](shots/haiku/fullscreen.png) |
 
 It runs on Haiku R1/beta6 and later, 64-bit (x86_64).

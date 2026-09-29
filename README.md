@@ -19,4 +19,4 @@ Minuta also runs natively on Haiku. There's an installable package on the
 [docs/haiku.md](docs/haiku.md) covers installing, building, shortcuts and
 known limitations.
 
-![Minuta on Haiku](docs/shots/haiku/dimming.png)
+![Minuta on Haiku](docs/shots/haiku/hino-editor.png)

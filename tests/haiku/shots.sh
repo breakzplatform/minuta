@@ -1,5 +1,5 @@
 #!/bin/bash
-# Takes the Haiku acceptance screenshots (dimming, modes, preview, 1 MB file)
+# Takes the Haiku screenshots (dimming, modes, full screen, previews, 1 MB file)
 # into OUT_DIR (default docs/shots/haiku). Needs the VM running, the app
 # installed (tools/haiku-vm/build install) and the big test file in the
 # guest at /tmp/big.md. Settings are reset first; coordinates assume the
@@ -22,9 +22,9 @@ shot() { "$vm/settle" 20 1 "$out/$1" >/dev/null; echo "$out/$1"; }
 quit_app
 "$vm/ssh" 'rm -f ~/config/settings/Minuta'
 
-open_file samples/prose.md
+open_file samples/poema-em-linha-reta.md
 shot dimming.png
-"$vm/click" 600 285                 # "The rest of the paragraph is still there."
+"$vm/click" 600 717                 # "Que contasse, não uma violência, mas uma cobardia!"
 "$vm/key" alt-shift-f
 shot focus-sentence.png
 "$vm/key" alt-shift-p
@@ -41,9 +41,19 @@ shot counters.png
 sleep 4
 "$vm/key" alt-f
 sleep 1
-"$vm/type" 'caret'
+"$vm/type" 'vezes'
 "$vm/key" ret
 shot find.png
+"$vm/key" esc
+"$vm/key" alt-ret
+shot fullscreen.png
+"$vm/key" esc
+quit_app
+
+open_file samples/hino-de-pernambuco.md
+shot hino-editor.png
+"$vm/key" alt-r
+shot hino-preview.png
 "$vm/key" esc
 quit_app
 
