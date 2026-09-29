@@ -1,5 +1,7 @@
 # Haiku build of Minuta (run inside Haiku; see tools/haiku-vm/build).
 #   make          objects/Minuta
+#   make install  copy it to ~/config/non-packaged/apps and add a `minuta`
+#                 command to ~/config/non-packaged/bin
 #   make clean
 # Plain g++/gcc: the core and md4c are C, the shell is C++ on the BeAPI.
 
@@ -26,7 +28,10 @@ CORE_OBJ := $(addprefix $(OBJ)/,$(CORE_SRC:.c=.o))
 MD4C_OBJ := $(addprefix $(OBJ)/,$(MD4C_SRC:.c=.o))
 APP_OBJ := $(addprefix $(OBJ)/,$(APP_SRC:.cpp=.o))
 
-.PHONY: all clean
+APPS_DIR = $(shell finddir B_USER_NONPACKAGED_DIRECTORY)/apps
+BIN_DIR = $(shell finddir B_USER_NONPACKAGED_BIN_DIRECTORY)
+
+.PHONY: all install clean
 
 all: $(APP)
 
@@ -49,6 +54,12 @@ $(OBJ)/Minuta.rsrc: Minuta.rdef | $(OBJ)
 
 $(OBJ):
 	mkdir -p $@
+
+install: $(APP)
+	mkdir -p $(APPS_DIR) $(BIN_DIR)
+	cp $(APP) $(APPS_DIR)/Minuta
+	mimeset -f $(APPS_DIR)/Minuta
+	ln -sf $(APPS_DIR)/Minuta $(BIN_DIR)/minuta
 
 clean:
 	rm -rf $(OBJ)

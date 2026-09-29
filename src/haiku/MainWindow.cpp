@@ -16,6 +16,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 
 #include "Constants.h"
@@ -550,12 +551,8 @@ MainWindow::_SaveTo(const entry_ref& directoryRef, const char* name)
 			status = B_IO_ERROR;
 	}
 	free(bytes);
-	if (status == B_OK) {
-		BNodeInfo info(&file);
-		char type[B_MIME_TYPE_LENGTH];
-		if (info.GetType(type) != B_OK)
-			info.SetType(MARKDOWN_TYPE);
-	}
+	if (status == B_OK)
+		_SetMarkdownType(file, name);
 	if (status != B_OK) {
 		_ShowError("save", status);
 		return status;
@@ -569,6 +566,26 @@ MainWindow::_SaveTo(const entry_ref& directoryRef, const char* name)
 	BPath path(&fRef);
 	gSettings.lastFile = path.Path();
 	return B_OK;
+}
+
+
+// Haiku's sniffer types most .md files as text/plain (content rules win
+// over the extension), which would open them in the plain text editor.
+// Files Minuta saves with a Markdown extension become text/markdown unless
+// they already have another, more specific type.
+void
+MainWindow::_SetMarkdownType(BFile& file, const char* name)
+{
+	BString extension(name);
+	int32 dot = extension.FindLast('.');
+	extension.Remove(0, dot + 1);
+	extension.ToLower();
+	bool markdownName = dot > 0 && (extension == "md" || extension == "markdown");
+	BNodeInfo info(&file);
+	char type[B_MIME_TYPE_LENGTH];
+	bool typed = info.GetType(type) == B_OK && type[0] != '\0';
+	if (!typed || (markdownName && strcmp(type, "text/plain") == 0))
+		info.SetType(MARKDOWN_TYPE);
 }
 
 
@@ -688,6 +705,7 @@ MainWindow::_Find(const BString& needle, bool caseSensitive, bool backwards)
 	view->Select(found, found + needle.Length());
 	view->ScrollToSelection();
 	view->MakeFocus(true);
+	Activate();
 }
 
 

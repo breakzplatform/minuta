@@ -10,6 +10,7 @@ extern "C" {
 #include "document.h"
 }
 
+class BFile;
 class BFilePanel;
 class BMenuBar;
 class BMenuItem;
@@ -43,6 +44,7 @@ private:
 			void				_ShowSavePanel(uint32 what);
 			status_t			_Save();
 			status_t			_SaveTo(const entry_ref& directory, const char* name);
+			void				_SetMarkdownType(BFile& file, const char* name);
 			void				_Export(const entry_ref& directory, const char* name,
 									bool open);
 			void				_TogglePreview();

@@ -73,4 +73,8 @@ FindWindow::_Send(bool backwards)
 	request.AddBool("case", fCaseSensitive->Value() == B_CONTROL_ON);
 	request.AddBool("backwards", backwards);
 	fTarget.SendMessage(&request);
+	// BTextView hides the selection while its window is inactive, so the
+	// panel gets out of the way to show the match (as in StyledEdit);
+	// Alt+G finds the next one.
+	PostMessage(B_QUIT_REQUESTED);
 }

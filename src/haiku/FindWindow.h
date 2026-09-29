@@ -8,7 +8,8 @@
 class BCheckBox;
 class BTextControl;
 
-// Small floating find panel; sends MSG_FIND_REQUEST to its document window.
+// Small find panel; sends MSG_FIND_REQUEST to its document window and
+// closes.
 class FindWindow : public BWindow {
 public:
 								FindWindow(BWindow* target, const BString& text,
