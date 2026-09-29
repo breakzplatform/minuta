@@ -19,6 +19,7 @@ build (`tests/vm/*.sh` rerun on it; logs in `build/vm-*.log`, not committed):
 | 7 | 1 MB file opens in < 5 s, scrolling doesn't stall | 2.6 s; slowest scroll step 0.3 s |
 | 8 | md2html on win98, FreeDOS, MS-DOS 6.22 | 7 byte comparisons pass; `md2html-*.png` |
 | 9 | `make test` green, no warnings at `-w4` in `src/` | 43 unit tests + 9 md2html tests; clean build without diagnostics |
+| 10 | F11 full screen (added after v0.1.0) | 10 pixel checks pass; `m7-fullscreen*.png`, `m7-restored.png` |
 
 Not verified: Windows 98 FE and ME (no VMs for them).
 
@@ -215,3 +216,33 @@ Open issues:
   to the visible range only on load and scroll).
 - Inside the process, start-up is ~260 ms of guest time, about a third of it
   loading RICHED20.DLL.
+
+## Additions after v0.1.0 (requested 2026-09-28)
+
+### License (GPL-3.0-only): done
+
+- `LICENSE` (GPL-3.0-only, copyright 2026 Joselito Junior) at the root; README has
+  a License section; md4c keeps its MIT license in
+  `vendor/md4c/LICENSE.md`. Recorded in SPEC.md (Delivery).
+
+### Full screen (F11): done
+
+- `src/win/main.c`: F11 (View > Full Screen) saves the window placement and
+  menu, switches the main window to `WS_POPUP` at the screen size
+  (`SM_CXSCREEN`/`SM_CYSCREEN`) with no menu; WM_SIZE lays the centered
+  column out again. F11 again, or Esc, restores the style, menu and
+  placement. Esc leaves the preview first when both are active. Closing in
+  full screen saves the windowed placement to `MINUTA.INI`.
+- Acceptance 10, `tests/vm/fullscreen.sh` on win98 (`build/vm-fullscreen.log`):
+  10 checks pass. They sample screen pixels: the top row and the taskbar
+  are desktop/taskbar in the normal window and editor background in full
+  screen, and back after Esc and after F11. Screenshots:
+  `m7-fullscreen.png`, `m7-fullscreen-typing.png` (typing works, column
+  centered), `m7-fullscreen-preview.png` (the preview in full screen),
+  `m7-restored.png` (same placement as before).
+
+Decisions:
+- Full screen uses the primary screen size (`GetSystemMetrics`), which
+  covers the monitor on Windows 98's usual single-monitor setups; the
+  multi-monitor API is not used.
+- Full screen is not remembered across runs (not a setting in the INI).

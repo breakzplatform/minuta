@@ -77,6 +77,10 @@ Binary size goal: under 400 KB.
     focus mode, typewriter, last file, window placement.
 12. **Crash safety:** autosave to `name.md~` every 30 s while modified; removed
     on clean save/close.
+13. **Full screen (`F11`):** distraction-free mode: a borderless `WS_POPUP`
+    window covering the monitor, no menu, the column still centered. `F11`
+    or `Esc` (after leaving the preview, if open) restores the window and its
+    placement. (Added 2026-09-28.)
 
 ## md2html CLI
 
@@ -103,6 +107,8 @@ Run on the VMs in `~/vms/retro` using `--loadvm ready`:
 8. md2html: same tests as today on win98, freedos and dos622.
 9. `make test` (core unit tests) green on macOS; no compiler warnings at
    `-w4` in `src/`.
+10. `F11` covers the whole screen (no caption, menu or taskbar) with the
+    column centered; `Esc`/`F11` restore the window; screenshot.
 
 ## Delivery
 

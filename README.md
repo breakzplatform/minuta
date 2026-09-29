@@ -37,6 +37,7 @@ Minuta reopen the last file. Everything is on the keyboard:
 | Ctrl+Shift+P | Focus on the current paragraph instead of the sentence |
 | Ctrl+Shift+T | Typewriter scrolling: the caret line stays in the middle |
 | Ctrl+Shift+N | Night theme |
+| F11 | Full screen: no window frame, menu or taskbar; F11 or Esc to leave |
 | Ctrl+Shift+W | Word count, characters and reading time |
 | Ctrl+F, F3, Ctrl+H | Find, find next, replace |
 | Ctrl+Z, Ctrl+Y | Undo (word by word), redo |

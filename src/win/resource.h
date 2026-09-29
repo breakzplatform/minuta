@@ -34,6 +34,7 @@
 #define IDM_VIEW_COLUMN_NARROWER 1210
 #define IDM_VIEW_FONT           1211
 #define IDM_VIEW_ESCAPE         1212
+#define IDM_VIEW_FULLSCREEN     1213
 
 #define IDM_HELP_ABOUT          1301
 

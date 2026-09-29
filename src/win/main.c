@@ -187,6 +187,8 @@ static void show_about(void)
                "About " APP_NAME, MB_OK | MB_ICONINFORMATION);
 }
 
+static void toggle_fullscreen(void);
+
 static void on_command(int id)
 {
     if (app.previewing && needs_editor(id)) {
@@ -211,10 +213,14 @@ static void on_command(int id)
     case IDM_EDIT_REPLACE:      find_open(1); break;
     case IDM_VIEW_PREVIEW:      toggle_preview(); break;
     case IDM_VIEW_ESCAPE:
+        /* Esc leaves the preview first, then full screen. */
         if (app.previewing) {
             toggle_preview();
+        } else if (app.fullscreen) {
+            toggle_fullscreen();
         }
         break;
+    case IDM_VIEW_FULLSCREEN:      toggle_fullscreen(); break;
     case IDM_VIEW_COUNTERS:     counters_show(); break;
     case IDM_VIEW_NIGHT:
         app.settings.night = !app.settings.night;
@@ -252,12 +258,45 @@ static void resize_children(int width, int height)
     style_settings_changed();
 }
 
+/* Placement and menu of the normal window while in full screen. */
+static WINDOWPLACEMENT windowed_placement;
+static HMENU windowed_menu;
+
+/* Distraction-free mode: a borderless popup covering the screen, no menu.
+ * The editor keeps its centered column (WM_SIZE lays it out again). */
+static void toggle_fullscreen(void)
+{
+    if (!app.fullscreen) {
+        windowed_placement.length = sizeof(windowed_placement);
+        GetWindowPlacement(app.window, &windowed_placement);
+        windowed_menu = GetMenu(app.window);
+        app.fullscreen = 1;
+        SetMenu(app.window, NULL);
+        SetWindowLong(app.window, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+        SetWindowPos(app.window, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN),
+                     GetSystemMetrics(SM_CYSCREEN), SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+    } else {
+        app.fullscreen = 0;
+        SetWindowLong(app.window, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+        SetMenu(app.window, windowed_menu);
+        SetWindowPlacement(app.window, &windowed_placement);
+        SetWindowPos(app.window, NULL, 0, 0, 0, 0,
+                     SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+    }
+    CheckMenuItem(app.fullscreen ? windowed_menu : GetMenu(app.window), IDM_VIEW_FULLSCREEN,
+                  app.fullscreen ? MF_CHECKED : MF_UNCHECKED);
+}
+
 static void remember_placement(void)
 {
     WINDOWPLACEMENT placement;
 
     placement.length = sizeof(placement);
-    if (GetWindowPlacement(app.window, &placement)) {
+    if (app.fullscreen) {
+        placement = windowed_placement;
+        app.settings.window = placement.rcNormalPosition;
+        app.settings.maximized = placement.showCmd == SW_SHOWMAXIMIZED;
+    } else if (GetWindowPlacement(app.window, &placement)) {
         app.settings.window = placement.rcNormalPosition;
         app.settings.maximized = placement.showCmd == SW_SHOWMAXIMIZED;
     }

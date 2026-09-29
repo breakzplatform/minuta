@@ -47,6 +47,7 @@ struct app {
     struct document_format format;
     int modified;
     int previewing;
+    int fullscreen;
 };
 
 extern struct app app;
