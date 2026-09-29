@@ -116,6 +116,10 @@ MainWindow::MainWindow(BRect frame)
 		.Add(fPreviewScroll);
 	fPreviewScroll->Hide();
 	SetSizeLimits(kMinTextWidth, 32768, kMinTextHeight, 32768);
+	// '+' needs Shift on most layouts, and a menu shortcut only matches
+	// without it; accept Alt+= and Alt+Shift+= as well.
+	AddShortcut('=', B_COMMAND_KEY, new BMessage(MSG_FONT_BIGGER));
+	AddShortcut('+', B_COMMAND_KEY | B_SHIFT_KEY, new BMessage(MSG_FONT_BIGGER));
 
 	_ApplySettings();
 	_UpdateTitle();
@@ -448,6 +452,7 @@ MainWindow::QuitRequested()
 		BAlert* alert = new BAlert("Minuta", text, "Cancel", "Don't save", "Save",
 			B_WIDTH_AS_USUAL, B_OFFSET_SPACING, B_WARNING_ALERT);
 		alert->SetShortcut(0, B_ESCAPE);
+		alert->SetShortcut(1, 'd');
 		int32 choice = alert->Go();
 		if (choice == 0)
 			return false;
