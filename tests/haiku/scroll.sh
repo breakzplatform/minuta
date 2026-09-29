@@ -1,8 +1,8 @@
 #!/bin/bash
 # Acceptance 6 (Haiku), scrolling: with a document open and focused, send
-# COUNT Page Down keys in one burst and time until the screen settles, then
-# a jump to the end (Alt+End... BTextView: Page Down repeated) is checked on
-# the screenshot. usage: tests/haiku/scroll.sh [COUNT=40] [out.png]
+# COUNT Page Down keys in one burst and time until the screen settles (1 s
+# without changes beyond a few pixel rows).
+# usage: tests/haiku/scroll.sh [COUNT=40] [out.png]
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/../.." && pwd)
 vm="$repo/tools/haiku-vm"

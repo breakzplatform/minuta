@@ -34,4 +34,4 @@ With typewriter scrolling the line with the caret stays in the middle of the win
 
 Paragraph after paragraph, the text scrolls up and the caret stays put. The screen above is what you wrote; the screen below is empty space waiting for what comes next.
 
-The end. 
+The end.
