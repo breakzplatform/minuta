@@ -3,6 +3,25 @@
 Progress of the milestones in `SPEC.md`. Evidence lives in `docs/shots/`
 (VM screenshots) and in the test commands listed per milestone.
 
+## Summary (v0.1.0, 2026-09-28)
+
+All six milestones are done and every acceptance item passes on the final
+build (`tests/vm/*.sh` rerun on it; logs in `build/vm-*.log`, not committed):
+
+| # | Acceptance item | Result |
+|---|---|---|
+| 1 | Starts in < 2 s, opens CP1252 and UTF-8 samples with correct accents | 0.85 s from Start > Run to the painted, styled document; `m3-open-*.png` |
+| 2 | 2,000 words typed via `bin/type` without dropped keys; dimmed markers, bold heading, italic | 2,082 words, saved file byte-identical; `m4-typing.png` |
+| 3 | Focus, typewriter, night theme screenshots | `m4-focus.png`, `m4-focus-paragraph.png`, `m4-typewriter.png`, `m4-night.png` |
+| 4 | Preview of the smoke sample | `m5-preview*.png` |
+| 5 | UTF-8 and CP1252 save round trips, compared byte for byte | 6 comparisons pass, plus autosave |
+| 6 | Exported HTML in IE 5 with correct accents | `m5-export-ie5.png`, `m5-export-unicode-ie5.png` |
+| 7 | 1 MB file opens in < 5 s, scrolling doesn't stall | 2.6 s; slowest scroll step 0.3 s |
+| 8 | md2html on win98, FreeDOS, MS-DOS 6.22 | 7 byte comparisons pass; `md2html-*.png` |
+| 9 | `make test` green, no warnings at `-w4` in `src/` | 43 unit tests + 9 md2html tests; clean build without diagnostics |
+
+Not verified: Windows 98 FE and ME (no VMs for them).
+
 ## Milestone 1 — repo, vendored md4c, build, md2html codepages: done
 
 - `vendor/md4c/` is md4c 0.6.0 (`c7ba975`) with `md4c-watcom.patch` applied;
@@ -171,3 +190,28 @@ Decisions:
 - The export's encoding follows the document (UTF-8 or windows-1252); there
   is no separate choice.
 - Replace is implemented (the spec made it optional).
+
+## Milestone 6 — polish, README, screenshots, v0.1.0: done
+
+- README (build, test, usage, settings, md2html, RichEdit findings) with
+  screenshots from `docs/shots/`.
+- Fixes found in review: an unexpected change (drag and drop inside the
+  editor) now clears the undo history, whose positions may no longer hold;
+  the editor is sized before the first file loads, so the first styling pass
+  covers the real view; resizing to the same size no longer restyles.
+- The start-time probe ignores changes under 2,000 pixels: a frame-by-frame
+  capture showed the styled document fully painted at ~1.0 s and a later
+  555-pixel change (mouse cursor, caret) that the old 64-pixel threshold
+  counted as "still changing" (it reported 1.3–1.8 s).
+- Full clean Watcom build: no warnings or errors in `src/`; `MINUTA.EXE`
+  199 KB, `MD2HTMLW.EXE` 163 KB, `MD2HTMLD.EXE` 217 KB.
+- All VM suites (`md2html`, `files`, `preview`, `editor`) rerun on the
+  final build: everything passes (numbers in the summary above).
+- Tagged `v0.1.0`.
+
+Open issues:
+- Windows 98 FE and ME are untested.
+- Pasting a very large text restyles all of it at once (styling is limited
+  to the visible range only on load and scroll).
+- Inside the process, start-up is ~260 ms of guest time, about a third of it
+  loading RICHED20.DLL.

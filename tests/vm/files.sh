@@ -26,7 +26,9 @@ sleep 3
 "$bin/type" win98 'C:\MINUTA\MINUTA.EXE D:\TESTE.MD'
 sleep 2
 "$bin/key" win98 ret
-elapsed=$("$repo/tests/vm/screen.py" last-change win98 20 3)
+# Changes under 2,000 pixels (mouse cursor turning from hourglass to I-beam,
+# caret blink) don't count; the document paint is ~350,000.
+elapsed=$("$repo/tests/vm/screen.py" last-change win98 20 3 2000)
 if [[ $elapsed != timeout ]] && awk "BEGIN { exit !($elapsed < 2.0) }"; then
   pass "MINUTA.EXE shows TESTE.MD ${elapsed}s after Enter (last screen change; < 2 s)"
 else

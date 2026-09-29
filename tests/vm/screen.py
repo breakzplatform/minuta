@@ -3,9 +3,11 @@
 
 usage: screen.py wait-light VM X Y TIMEOUT   seconds until pixel (X,Y) is light
        screen.py pixel VM X Y                prints the pixel as RRGGBB
-       screen.py last-change VM TIMEOUT QUIET
+       screen.py last-change VM TIMEOUT QUIET [PIXELS]
            seconds from now to the last screen change before the screen
-           stayed unchanged for QUIET seconds (ignores <= 64 pixels, the caret)
+           stayed unchanged for QUIET seconds; changes of at most PIXELS
+           pixels are ignored (default 64: the blinking caret; the mouse
+           cursor changing shape is a few hundred)
 """
 import os
 import subprocess
@@ -45,7 +47,7 @@ def pixel(vm, x, y):
     return tuple(pixels[offset:offset + 3])
 
 
-def changed(a, b):
+def changed(a, b, pixels=64):
     if a is None or len(a) != len(b):
         return True
     if a == b:
@@ -54,19 +56,19 @@ def changed(a, b):
     for i in range(0, len(a), 3):
         if a[i:i + 3] != b[i:i + 3]:
             count += 1
-            if count > 64:
+            if count > pixels:
                 return True
     return False
 
 
-def last_change(vm, timeout, quiet):
+def last_change(vm, timeout, quiet, pixels=64):
     start = time.time()
     previous = None
     last = 0.0
     while True:
         now = time.time()
         _, current = grab(vm)
-        if changed(previous, current):
+        if changed(previous, current, pixels):
             last = now - start
         previous = current
         if now - start - last >= quiet:
@@ -79,7 +81,8 @@ def last_change(vm, timeout, quiet):
 def main():
     command, vm = sys.argv[1], sys.argv[2]
     if command == "last-change":
-        result = last_change(vm, float(sys.argv[3]), float(sys.argv[4]))
+        pixels = int(sys.argv[5]) if len(sys.argv) > 5 else 64
+        result = last_change(vm, float(sys.argv[3]), float(sys.argv[4]), pixels)
         print("timeout" if result is None else "%.2f" % result)
         sys.exit(0 if result is not None else 1)
     x, y = int(sys.argv[3]), int(sys.argv[4])

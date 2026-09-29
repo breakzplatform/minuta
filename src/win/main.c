@@ -233,6 +233,25 @@ static void on_command(int id)
     }
 }
 
+static void resize_children(int width, int height)
+{
+    static int last_width = -1;
+    static int last_height = -1;
+
+    if (width == last_width && height == last_height) {
+        return;
+    }
+    last_width = width;
+    last_height = height;
+    MoveWindow(app.editor, 0, 0, width, height, TRUE);
+    editor_layout();
+    if (app.preview != NULL) {
+        MoveWindow(app.preview, 0, 0, width, height, TRUE);
+        editor_layout_control(app.preview);
+    }
+    style_settings_changed();
+}
+
 static void remember_placement(void)
 {
     WINDOWPLACEMENT placement;
@@ -253,13 +272,7 @@ static LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM wpara
     switch (message) {
     case WM_SIZE:
         if (app.editor != NULL) {
-            MoveWindow(app.editor, 0, 0, LOWORD(lparam), HIWORD(lparam), TRUE);
-            editor_layout();
-            if (app.preview != NULL) {
-                MoveWindow(app.preview, 0, 0, LOWORD(lparam), HIWORD(lparam), TRUE);
-                editor_layout_control(app.preview);
-            }
-            style_settings_changed();
+            resize_children(LOWORD(lparam), HIWORD(lparam));
         }
         return 0;
     case WM_NOTIFY:
@@ -388,6 +401,14 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     }
     app.preview = preview_create(app.window);
     app.accelerators = LoadAccelerators(instance, MAKEINTRESOURCE(IDR_ACCELERATORS));
+    /* The first WM_SIZE came before the editor existed: size it now, so
+     * the document is styled for the real view before the window shows. */
+    {
+        RECT client;
+
+        GetClientRect(app.window, &client);
+        resize_children(client.right, client.bottom);
+    }
     apply_view_settings();
 
     /* Load before showing, so the window paints once, with the text. */

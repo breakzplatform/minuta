@@ -65,8 +65,10 @@ void editor_notify_change(void)
     } else if (changes_expected_later > 0) {
         changes_expected_later--;
     } else if (!style_busy) {
-        /* A change we didn't see coming (drag and drop): start over. */
+        /* A change we didn't see coming (drag and drop): start over, and
+         * forget undo steps whose positions may no longer hold. */
         app_document_changed();
+        undo_clear();
         style_reset();
     }
 }
@@ -206,14 +208,19 @@ void editor_replace_selection(const char *text)
 void editor_replace(long start, long end, const char *text, long size)
 {
     CHARRANGE range;
+    int outer_changes = changes_during_tracking;
 
     range.cpMin = start;
     range.cpMax = end;
+    changes_during_tracking = 0;
     tracking++;
     SendMessage(app.editor, EM_EXSETSEL, 0, (LPARAM)&range);
     CallWindowProc(richedit_procedure, app.editor, EM_REPLACESEL, FALSE, (LPARAM)text);
     tracking--;
-    changes_expected_later++;
+    if (changes_during_tracking == 0) {
+        changes_expected_later++;
+    }
+    changes_during_tracking = outer_changes;
     range.cpMin = start + size;
     range.cpMax = start + size;
     SendMessage(app.editor, EM_EXSETSEL, 0, (LPARAM)&range);
