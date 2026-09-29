@@ -49,6 +49,7 @@ App::App()
 App::~App()
 {
 	delete fOpenPanel;
+	gSettings.Save();
 }
 
 
@@ -119,10 +120,8 @@ App::MessageReceived(BMessage* message)
 			fOpenPanel->Show();
 			break;
 		case MSG_WINDOW_CLOSED:
-			if (--fWindowCount <= 0) {
-				gSettings.Save();
+			if (--fWindowCount <= 0)
 				PostMessage(B_QUIT_REQUESTED);
-			}
 			break;
 		default:
 			BApplication::MessageReceived(message);
@@ -164,21 +163,21 @@ App::_Open(const entry_ref& ref)
 		}
 	}
 
-	MainWindow* window = blank != NULL ? blank : _NewWindow();
-	if (!window->Lock())
-		return;
-	status_t status = window->Open(ref);
-	if (window != blank) {
-		if (status == B_OK) {
-			window->Unlock();
-			window->Show();
-		} else {
-			fWindowCount--;
-			window->Quit();
-		}
-		return;
+	// The window is shown before it loads the file, so the text is laid out
+	// once, at the window's real size.
+	MainWindow* window = blank;
+	if (window == NULL) {
+		window = _NewWindow();
+		window->Show();
 	}
-	window->Unlock();
+	if (window->Lock()) {
+		window->ReserveForOpen();
+		window->Unlock();
+	}
+	BMessage open(MSG_OPEN_REF);
+	open.AddRef("ref", &ref);
+	open.AddBool("close_on_failure", window != blank);
+	window->PostMessage(&open);
 	window->Activate();
 }
 

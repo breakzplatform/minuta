@@ -100,6 +100,14 @@ PreviewView::AttachedToWindow()
 
 
 void
+PreviewView::DoLayout()
+{
+	BTextView::DoLayout();
+	_UpdateInsets();
+}
+
+
+void
 PreviewView::FrameResized(float width, float height)
 {
 	BTextView::FrameResized(width, height);

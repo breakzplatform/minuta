@@ -157,6 +157,16 @@ EditorView::AttachedToWindow()
 
 
 void
+EditorView::DoLayout()
+{
+	// Insets depend on the view size; setting them here, during layout,
+	// avoids laying the text out once more after the window is shown.
+	BTextView::DoLayout();
+	_UpdateInsets();
+}
+
+
+void
 EditorView::FrameResized(float width, float height)
 {
 	BTextView::FrameResized(width, height);

@@ -9,6 +9,7 @@
 enum {
 	MSG_NEW = 'mNew',
 	MSG_OPEN = 'mOpn',
+	MSG_OPEN_REF = 'mORf',
 	MSG_SAVE = 'mSav',
 	MSG_SAVE_AS = 'mSvA',
 	MSG_EXPORT = 'mExp',

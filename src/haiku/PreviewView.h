@@ -28,6 +28,9 @@ public:
 	virtual	void				FrameResized(float width, float height);
 	virtual	void				KeyDown(const char* bytes, int32 numBytes);
 
+protected:
+	virtual	void				DoLayout();
+
 private:
 			void				_ApplyStyles();
 			void				_UpdateInsets();

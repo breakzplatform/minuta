@@ -33,6 +33,8 @@ extern "C" {
 }
 
 static const int32 kColumnWidths[] = { 50, 64, 72, 80 };
+static const float kMinTextWidth = 320;
+static const float kMinTextHeight = 200;
 static const float kFontSizeStep = 1;
 static const float kMinFontSize = 8;
 static const float kMaxFontSize = 36;
@@ -85,19 +87,24 @@ escape_html(const char* text)
 
 MainWindow::MainWindow(BRect frame)
 	:
-	BWindow(frame, "Minuta", B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS
-		| B_AUTO_UPDATE_SIZE_LIMITS),
+	BWindow(frame, "Minuta", B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS),
 	fSavePanel(NULL),
 	fFindCaseSensitive(false),
 	fHasRef(false),
 	fCloseAfterSave(false),
-	fOpenExport(false)
+	fOpenExport(false),
+	fOpenPending(false)
 {
 	document_format_init(&fFormat);
 	fFormat.line_ending = LINE_ENDING_LF;
 
 	fEditor = new EditorView();
 	fPreview = new PreviewView();
+	// The text views' minimum sizes grow with their insets (half the view
+	// height in typewriter mode); left to the layout, that would grow the
+	// window on every resize.
+	fEditor->SetExplicitMinSize(BSize(kMinTextWidth, kMinTextHeight));
+	fPreview->SetExplicitMinSize(BSize(kMinTextWidth, kMinTextHeight));
 	fEditorScroll = new BScrollView("editor scroll", fEditor, 0, false, true, B_NO_BORDER);
 	fPreviewScroll = new BScrollView("preview scroll", fPreview, 0, false, true,
 		B_NO_BORDER);
@@ -107,6 +114,7 @@ MainWindow::MainWindow(BRect frame)
 		.Add(fEditorScroll)
 		.Add(fPreviewScroll);
 	fPreviewScroll->Hide();
+	SetSizeLimits(kMinTextWidth, 32768, kMinTextHeight, 32768);
 
 	_ApplySettings();
 	_UpdateTitle();
@@ -245,7 +253,8 @@ MainWindow::Open(const entry_ref& ref)
 bool
 MainWindow::IsBlank() const
 {
-	return !fHasRef && !fEditor->IsModified() && fEditor->TextLength() == 0;
+	return !fOpenPending && !fHasRef && !fEditor->IsModified()
+		&& fEditor->TextLength() == 0;
 }
 
 
@@ -278,6 +287,17 @@ MainWindow::MessageReceived(BMessage* message)
 		case MSG_OPEN:
 			be_app->PostMessage(message);
 			break;
+
+		case MSG_OPEN_REF:
+		{
+			fOpenPending = false;
+			entry_ref ref;
+			if (message->FindRef("ref", &ref) == B_OK && Open(ref) != B_OK
+				&& message->GetBool("close_on_failure", false)) {
+				PostMessage(B_QUIT_REQUESTED);
+			}
+			break;
+		}
 
 		case MSG_SAVE:
 			if (fHasRef)
@@ -612,6 +632,7 @@ MainWindow::_TogglePreview()
 		fPreview->GetSelection(&start, &end);
 		int32 source = fPreview->TextToSource(start);
 		fPreviewScroll->Hide();
+	SetSizeLimits(kMinTextWidth, 32768, kMinTextHeight, 32768);
 		fEditorScroll->Show();
 		fEditor->MakeFocus(true);
 		if (source > 0) {
@@ -666,7 +687,6 @@ MainWindow::_Find(const BString& needle, bool caseSensitive, bool backwards)
 	}
 	view->Select(found, found + needle.Length());
 	view->ScrollToSelection();
-	Activate();
 	view->MakeFocus(true);
 }
 

@@ -27,6 +27,9 @@ public:
 
 			status_t			Open(const entry_ref& ref);
 			bool				IsBlank() const;
+			// Keeps IsBlank() false until an MSG_OPEN_REF sent to this
+			// window has been handled.
+			void				ReserveForOpen() { fOpenPending = true; }
 			bool				HasRef(const entry_ref& ref) const;
 
 	virtual	void				MessageReceived(BMessage* message);
@@ -67,6 +70,7 @@ private:
 			document_format		fFormat;
 			bool				fCloseAfterSave;
 			bool				fOpenExport;
+			bool				fOpenPending;
 };
 
 #endif

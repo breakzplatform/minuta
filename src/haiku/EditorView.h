@@ -45,6 +45,7 @@ public:
 	virtual	void				Undo(BClipboard* clipboard);
 
 protected:
+	virtual	void				DoLayout();
 	virtual	void				InsertText(const char* text, int32 length,
 									int32 offset, const text_run_array* runs);
 	virtual	void				DeleteText(int32 fromOffset, int32 toOffset);
