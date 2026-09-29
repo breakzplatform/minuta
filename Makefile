@@ -54,7 +54,10 @@ OW_WARN := $(OW_STRICT)
 VENDOR_OBJS := $(NT_MD4C) $(DOS_MD4C) $(NT_DIR)/cmdline.obj $(DOS_DIR)/cmdline.obj
 $(VENDOR_OBJS): OW_WARN := $(OW_VENDOR)
 
-.PHONY: all win dos test clean
+VERSION := 0.1.0
+DIST := $(BUILD)/dist
+
+.PHONY: all win dos test dist clean
 
 all: win dos
 
@@ -112,6 +115,20 @@ $(sort $(NT_MD4C) $(NT_CORE) $(NT_CLI) $(NT_WIN) $(DOS_MD4C) $(DOS_CORE) $(DOS_C
 
 $(NT_DIR) $(DOS_DIR) $(HOST_DIR) $(OUT):
 	mkdir -p $@
+
+# Release ZIPs and installer (makensis 3, ANSI build); text files in CRLF,
+# README.TXT in Windows-1252.
+dist: win dos
+	rm -rf $(DIST)
+	mkdir -p $(DIST)/win98 $(DIST)/dos
+	cp $(OUT)/MINUTA.EXE $(OUT)/MD2HTMLW.EXE $(DIST)/win98/
+	iconv -f UTF-8 -t CP1252 dist/README.TXT | LC_ALL=C sed 's/$$/\r/' > $(DIST)/win98/README.TXT
+	LC_ALL=C sed 's/$$/\r/' LICENSE > $(DIST)/win98/LICENSE.TXT
+	cp $(OUT)/MD2HTMLD.EXE $(DIST)/win98/LICENSE.TXT $(DIST)/dos/
+	cd $(DIST)/win98 && zip -X -q ../minuta-$(VERSION)-win98.zip MINUTA.EXE MD2HTMLW.EXE README.TXT LICENSE.TXT
+	cd $(DIST)/dos && zip -X -q ../minuta-$(VERSION)-dos.zip MD2HTMLD.EXE LICENSE.TXT
+	cd dist && makensis -V2 -DVERSION=$(VERSION) minuta.nsi
+	ls -l $(DIST)/*.zip $(DIST)/*.exe
 
 clean:
 	rm -rf $(BUILD)
