@@ -1,0 +1,6 @@
+#!/bin/bash
+# Copy files from the Mac into the guest. usage: push-file FILE... GUEST_DIR
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+(($# >= 2)) || { echo "usage: push-file FILE... GUEST_DIR" >&2; exit 2; }
+/usr/bin/scp -q "${SCP_OPTS[@]}" "${@:1:$#-1}" "$SSH_TARGET:${!#}"
