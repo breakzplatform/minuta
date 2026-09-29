@@ -189,20 +189,28 @@ App::_Open(const entry_ref& ref)
 // picked one. Activating a package doesn't enter its apps into the MIME
 // database, and an entry made by an older build keeps no icons, so Tracker
 // would show generic icons for the app and for .md files: when our entry
-// has no icon, register the running executable (what `mimeset -a -F` does).
+// lacks either icon, register the running executable (what `mimeset -a -F`
+// does).
 void
 App::_RegisterFileType()
 {
 	BMimeType self(APP_SIGNATURE);
 	uint8* icon = NULL;
 	size_t iconSize = 0;
-	if (self.GetIcon(&icon, &iconSize) != B_OK || iconSize == 0) {
+	uint8* documentIcon = NULL;
+	size_t documentIconSize = 0;
+	// `mimeset -f` (as in the build) registers the app icon but not the
+	// icon for text/markdown, so check both.
+	if (self.GetIcon(&icon, &iconSize) != B_OK || iconSize == 0
+		|| self.GetIconForType(MARKDOWN_TYPE, &documentIcon, &documentIconSize) != B_OK
+		|| documentIconSize == 0) {
 		app_info info;
 		BPath path;
 		if (GetAppInfo(&info) == B_OK && path.SetTo(&info.ref) == B_OK)
 			create_app_meta_mime(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL);
 	}
 	free(icon);
+	free(documentIcon);
 
 	BMimeType type(MARKDOWN_TYPE);
 	if (!type.IsInstalled())
