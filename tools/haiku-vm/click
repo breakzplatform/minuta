@@ -1,7 +1,8 @@
 #!/bin/bash
 # Move the pointer to screen pixel X,Y through the USB tablet and click.
-# usage: click X Y [left|right|middle] [--double] [--move]
+# usage: click X Y [left|right|middle] [--double] [--move] [--drag-to X2 Y2]
 #   --move    only move the pointer
+#   --drag-to press at X,Y, move to X2,Y2 in small steps and release there
 set -euo pipefail
 . "$(dirname "$0")/_common.sh"
 is_running || { echo "$VM is not running" >&2; exit 1; }
@@ -28,9 +29,23 @@ call("input-send-event", events=[
     {"type": "abs", "data": {"axis": "x", "value": scale(x, width)}},
     {"type": "abs", "data": {"axis": "y", "value": scale(y, height)}}])
 if "--move" in rest: sys.exit()
-for _ in range(2 if "--double" in rest else 1):
+if "--drag-to" in rest:
+    index = rest.index("--drag-to")
+    to_x, to_y = int(rest[index + 1]), int(rest[index + 2])
     time.sleep(0.15)
+    call("input-send-event", events=[{"type": "btn", "data": {"down": True, "button": button}}])
+    steps = 20
+    for step in range(1, steps + 1):
+        time.sleep(0.05)
+        call("input-send-event", events=[
+            {"type": "abs", "data": {"axis": "x", "value": scale(int(x) + (to_x - int(x)) * step // steps, width)}},
+            {"type": "abs", "data": {"axis": "y", "value": scale(int(y) + (to_y - int(y)) * step // steps, height)}}])
+    time.sleep(0.3)
+    call("input-send-event", events=[{"type": "btn", "data": {"down": False, "button": button}}])
+    sys.exit()
+time.sleep(0.15)
+for _ in range(2 if "--double" in rest else 1):
     for down in (True, False):
         call("input-send-event", events=[{"type": "btn", "data": {"down": down, "button": button}}])
-        time.sleep(0.08)
+        time.sleep(0.04)
 PY
