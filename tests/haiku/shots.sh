@@ -1,5 +1,5 @@
 #!/bin/bash
-# Takes the Haiku acceptance screenshots (SPEC-HAIKU.md items 2, 3, 4 and 6)
+# Takes the Haiku acceptance screenshots (dimming, modes, preview, 1 MB file)
 # into OUT_DIR (default docs/shots/haiku). Needs the VM running, the app
 # installed (tools/haiku-vm/build install) and the big test file in the
 # guest at /tmp/big.md. Settings are reset first; coordinates assume the
