@@ -56,8 +56,8 @@ $(OBJ)/%.o: $(CORE)/%.c $(wildcard $(CORE)/*.h) | $(OBJ)
 $(OBJ)/%.o: $(MD4C)/%.c | $(OBJ)
 	gcc -c $(VENDOR_CFLAGS) -o $@ $<
 
-$(OBJ)/Minuta.rsrc: Minuta.rdef | $(OBJ)
-	rc -o $@ $<
+$(OBJ)/Minuta.rsrc: Minuta.rdef Icons.rdef | $(OBJ)
+	rc -o $@ Minuta.rdef Icons.rdef
 
 $(OBJ):
 	mkdir -p $@

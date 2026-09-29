@@ -1,12 +1,15 @@
 #include <Application.h>
 #include <Entry.h>
 #include <FilePanel.h>
+#include <Mime.h>
+#include <Roster.h>
 #include <MimeType.h>
 #include <Path.h>
 #include <Screen.h>
 #include <Window.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
 
 #include "Constants.h"
@@ -183,10 +186,24 @@ App::_Open(const entry_ref& ref)
 
 
 // Offers Minuta as the handler for Markdown files unless the user already
-// picked one.
+// picked one. Activating a package doesn't enter its apps into the MIME
+// database, and an entry made by an older build keeps no icons, so Tracker
+// would show generic icons for the app and for .md files: when our entry
+// has no icon, register the running executable (what `mimeset -a -F` does).
 void
 App::_RegisterFileType()
 {
+	BMimeType self(APP_SIGNATURE);
+	uint8* icon = NULL;
+	size_t iconSize = 0;
+	if (self.GetIcon(&icon, &iconSize) != B_OK || iconSize == 0) {
+		app_info info;
+		BPath path;
+		if (GetAppInfo(&info) == B_OK && path.SetTo(&info.ref) == B_OK)
+			create_app_meta_mime(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL);
+	}
+	free(icon);
+
 	BMimeType type(MARKDOWN_TYPE);
 	if (!type.IsInstalled())
 		return;
