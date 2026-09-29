@@ -1,0 +1,29 @@
+name			minuta
+version			@VERSION@
+architecture	@ARCH@
+summary			"A minimal Markdown editor"
+description		"Minuta is a minimal Markdown editor in the spirit of iA Writer: \
+one centered column of monospace text, Markdown syntax kept visible but \
+dimmed, focus mode, typewriter scrolling, full screen and a night theme. \
+It has a preview, HTML export, word count and find, and reads UTF-8 and \
+Windows-1252 files, keeping their encoding and line endings on save."
+packager		"Joselito Junior <joselitojunior@gmail.com>"
+vendor			"Joselito Junior"
+licenses {
+	"GNU GPL v3"
+	"MIT"
+}
+copyrights {
+	"2026 Joselito Junior"
+}
+urls {
+	"https://github.com/breakzplatform/minuta"
+}
+provides {
+	minuta = @VERSION@
+	app:Minuta = @VERSION@
+	cmd:minuta = @VERSION@
+}
+requires {
+	haiku
+}
