@@ -1,0 +1,36 @@
+#!/bin/bash
+# Wait until the screen is unchanged for QUIET seconds (changes of <= 64
+# pixels, e.g. a blinking caret, are ignored) or TIMEOUT passes, then take a
+# screenshot and print its path. Exits 1 on timeout (screenshot still taken).
+# usage: settle [TIMEOUT=120] [QUIET=4] [out.png]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+status=0
+python3 - "$BIN/mon" "$RUN/$VM-probe.ppm" "${1:-120}" "${2:-4}" <<'PY' || status=1
+import subprocess, sys, time, os
+mon, probe, timeout, quiet = sys.argv[1], sys.argv[2], float(sys.argv[3]), float(sys.argv[4])
+def grab():
+    subprocess.run([mon, f"screendump {probe}"], check=True, stdout=subprocess.DEVNULL)
+    data = open(probe, "rb").read()
+    os.remove(probe)
+    return data
+def differs(a, b):
+    if a is None or len(a) != len(b): return True
+    if a == b: return False
+    n = 0
+    for i in range(0, len(a), 3):
+        if a[i:i+3] != b[i:i+3]:
+            n += 1
+            if n > 64: return True
+    return False
+start = time.time(); prev = None; stable = start
+while True:
+    cur = grab(); now = time.time()
+    if differs(prev, cur): stable = now
+    prev = cur
+    if now - stable >= quiet: sys.exit(0)
+    if now - start >= timeout: sys.exit(1)
+    time.sleep(1)
+PY
+"$BIN/shot" ${3:+"$3"}
+exit $status

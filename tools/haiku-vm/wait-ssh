@@ -1,0 +1,10 @@
+#!/bin/bash
+# Wait until SSH answers (default up to 300 s).
+# usage: wait-ssh [TIMEOUT]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+deadline=$((SECONDS + ${1:-300}))
+until /usr/bin/ssh "${SSH_OPTS[@]}" "$SSH_TARGET" true 2>/dev/null; do
+  ((SECONDS < deadline)) || { echo "ssh not ready" >&2; exit 1; }
+  sleep 5
+done

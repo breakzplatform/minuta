@@ -1,0 +1,36 @@
+#!/bin/bash
+# Move the pointer to screen pixel X,Y through the USB tablet and click.
+# usage: click X Y [left|right|middle] [--double] [--move]
+#   --move    only move the pointer
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+is_running || { echo "$VM is not running" >&2; exit 1; }
+probe="$RUN/$VM-click.ppm"
+"$BIN/mon" "screendump $probe" >/dev/null
+exec python3 - "$QMP" "$probe" "$@" <<'PY'
+import json, os, socket, sys, time
+path, probe, x, y, *rest = sys.argv[1:]
+with open(probe, "rb") as ppm:
+    _, width, height = ppm.readline().split()[0], *ppm.readline().split()
+os.remove(probe)
+width, height = int(width), int(height)
+button = next((r for r in rest if r in ("left", "right", "middle")), "left")
+s = socket.socket(socket.AF_UNIX); s.connect(path); f = s.makefile("rwb")
+def call(cmd, **args):
+    f.write(json.dumps({"execute": cmd, "arguments": args}).encode() + b"\n"); f.flush()
+    while True:
+        reply = json.loads(f.readline())
+        if "error" in reply: sys.exit(reply["error"]["desc"])
+        if "return" in reply: return
+f.readline(); call("qmp_capabilities")
+def scale(value, size): return int(int(value) * 32767 / max(size - 1, 1))
+call("input-send-event", events=[
+    {"type": "abs", "data": {"axis": "x", "value": scale(x, width)}},
+    {"type": "abs", "data": {"axis": "y", "value": scale(y, height)}}])
+if "--move" in rest: sys.exit()
+for _ in range(2 if "--double" in rest else 1):
+    time.sleep(0.15)
+    for down in (True, False):
+        call("input-send-event", events=[{"type": "btn", "data": {"down": down, "button": button}}])
+        time.sleep(0.08)
+PY

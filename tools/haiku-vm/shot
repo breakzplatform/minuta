@@ -1,0 +1,12 @@
+#!/bin/bash
+# Save a PNG screenshot and print its path.
+# usage: shot [--after SECONDS] [out.png]   (default: shots/haiku-<timestamp>.png)
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+if [[ ${1:-} == --after ]]; then sleep "$2"; shift 2; fi
+out=${1:-$ROOT/shots/$VM-$(date +%Y%m%d-%H%M%S).png}
+out=$(cd "$(dirname "$out")" && pwd)/$(basename "$out")
+rm -f "$out"
+"$BIN/mon" "screendump $out -f png" >/dev/null
+for _ in $(seq 50); do [[ -s $out ]] && break; sleep 0.1; done
+echo "$out"

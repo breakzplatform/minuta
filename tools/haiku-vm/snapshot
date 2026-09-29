@@ -1,0 +1,8 @@
+#!/bin/bash
+# Save a snapshot. With the VM running: full state (RAM + disk) via savevm.
+# With the VM stopped: disk only (qemu-img). usage: snapshot TAG
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+tag=${1:?usage: snapshot TAG}
+if is_running; then "$BIN/mon" "savevm $tag"; else qemu-img snapshot -c "$tag" "$DISK"; fi
+qemu-img snapshot -l -U "$DISK"

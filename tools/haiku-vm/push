@@ -1,0 +1,12 @@
+#!/bin/bash
+# Copy the repo's sources into the VM (~/minuta by default) with rsync over SSH.
+# usage: push [REPO_DIR] [GUEST_DIR]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+repo=${1:-$(cd "$BIN/../.." && pwd)}
+dest=${2:-minuta}
+# After --loadvm the guest clock is where the snapshot left it; sync it so
+# make sees the pushed sources in the past, not the future.
+"$BIN/ssh" "date -u -s @$(date +%s) >/dev/null"
+rsync -a --delete --exclude .git --exclude build/ --exclude 'docs/shots/' \
+  -e "/usr/bin/ssh ${SSH_OPTS[*]}" "$repo/" "$SSH_TARGET:$dest/"

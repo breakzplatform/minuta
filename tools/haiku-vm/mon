@@ -1,0 +1,25 @@
+#!/bin/bash
+# Send HMP commands to the monitor and print the replies.
+# usage: mon "cmd" ["cmd"...]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+is_running || { echo "$VM is not running" >&2; exit 1; }
+exec python3 - "$MON" "$@" <<'PY'
+import socket, sys
+path, cmds = sys.argv[1], sys.argv[2:]
+s = socket.socket(socket.AF_UNIX); s.connect(path); s.settimeout(600)
+def read_prompt():
+    buf = b""
+    while not buf.endswith(b"(qemu) "):
+        chunk = s.recv(65536)
+        if not chunk: break
+        buf += chunk
+    return buf.decode(errors="replace")
+read_prompt()
+for c in cmds:
+    s.sendall(c.encode() + b"\n")
+    out = read_prompt()
+    lines = [l for l in out.replace("\r", "").split("\n") if l and not l.startswith("(qemu)") and c not in l]
+    lines = [l for l in lines if not l.startswith("\x1b")]
+    if lines: print("\n".join(lines))
+PY
