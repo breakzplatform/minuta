@@ -16,6 +16,29 @@ UninstallIcon "..\res\MINUTA.ICO"
 RequestExecutionLevel admin
 XPStyle off
 
+!define SHCNE_ASSOCCHANGED 0x08000000
+
+; Points .md or .markdown at Minuta.Document, keeping any previous handler in
+; the value MinutaBackup so the uninstaller can put it back.
+!macro Associate EXTENSION
+  ReadRegStr $0 HKCR "${EXTENSION}" ""
+  StrCmp $0 "Minuta.Document" +3
+  StrCmp $0 "" +2
+  WriteRegStr HKCR "${EXTENSION}" "MinutaBackup" $0
+  WriteRegStr HKCR "${EXTENSION}" "" "Minuta.Document"
+!macroend
+
+!macro Unassociate EXTENSION
+  ReadRegStr $0 HKCR "${EXTENSION}" ""
+  StrCmp $0 "Minuta.Document" 0 +7
+  ReadRegStr $1 HKCR "${EXTENSION}" "MinutaBackup"
+  StrCmp $1 "" +4
+  WriteRegStr HKCR "${EXTENSION}" "" $1
+  DeleteRegValue HKCR "${EXTENSION}" "MinutaBackup"
+  Goto +2
+  DeleteRegKey HKCR "${EXTENSION}"
+!macroend
+
 Page directory
 Page instfiles
 UninstPage uninstConfirm
@@ -33,6 +56,15 @@ Section "Minuta"
   CreateShortCut "$SMPROGRAMS\Minuta\Minuta.lnk" "$INSTDIR\MINUTA.EXE"
   CreateShortCut "$SMPROGRAMS\Minuta\Read Me.lnk" "$INSTDIR\README.TXT"
   CreateShortCut "$SMPROGRAMS\Minuta\Uninstall Minuta.lnk" "$INSTDIR\UNINST.EXE"
+  ; Markdown files open in Minuta. The icon index 1 is the second icon group
+  ; in MINUTA.EXE, MINUTADOC.ICO (Win9x handles positive indexes reliably).
+  WriteRegStr HKCR "Minuta.Document" "" "Markdown Document"
+  WriteRegStr HKCR "Minuta.Document\DefaultIcon" "" "$INSTDIR\MINUTA.EXE,1"
+  WriteRegStr HKCR "Minuta.Document\shell" "" "open"
+  WriteRegStr HKCR "Minuta.Document\shell\open\command" "" '"$INSTDIR\MINUTA.EXE" "%1"'
+  !insertmacro Associate ".md"
+  !insertmacro Associate ".markdown"
+  System::Call 'shell32::SHChangeNotify(i ${SHCNE_ASSOCCHANGED}, i 0, i 0, i 0)'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Minuta" "DisplayName" "Minuta ${VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Minuta" "UninstallString" '"$INSTDIR\UNINST.EXE"'
 SectionEnd
@@ -52,4 +84,8 @@ Section "Uninstall"
   RMDir "$SMPROGRAMS\Minuta"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Minuta"
   DeleteRegKey HKLM "Software\Minuta"
+  !insertmacro Unassociate ".md"
+  !insertmacro Unassociate ".markdown"
+  DeleteRegKey HKCR "Minuta.Document"
+  System::Call 'shell32::SHChangeNotify(i ${SHCNE_ASSOCCHANGED}, i 0, i 0, i 0)'
 SectionEnd
