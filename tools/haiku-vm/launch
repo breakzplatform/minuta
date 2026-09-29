@@ -1,6 +1,7 @@
 #!/bin/bash
 # Start a GUI program in the guest, detached from the SSH session (output in
-# /tmp/launch.log), from ~/minuta. usage: launch COMMAND...
+# /tmp/launch.log), from ~/minuta. Arguments are quoted for the remote
+# shell, so paths with spaces work. usage: launch COMMAND [ARG...]
 set -euo pipefail
 . "$(dirname "$0")/_common.sh"
-"$BIN/ssh" "cd ~/minuta && ($* >/tmp/launch.log 2>&1 &)"
+"$BIN/ssh" "cd ~/minuta && ($(printf '%q ' "$@") >/tmp/launch.log 2>&1 &)"

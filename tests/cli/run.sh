@@ -49,14 +49,14 @@ if "$md2html" --codepage latin9 "$samples/TESTE.MD" >/dev/null 2>&1; then
 else echo "ok   unknown code page is rejected"; fi
 
 # The literary samples: the UTF-8 original and its CP1252 and CP850 copies
-# (CRLF) must render the same HTML.
-for sample in "hino-de-pernambuco HINOPE HINOP850" "poema-em-linha-reta POEMA POEMA850"; do
-  set -- $sample
-  "$md2html" --codepage utf8 "$samples/$1.md" -o "$work/$1.html"
-  "$md2html" --codepage 1252 "$samples/$2.MD" -o "$work/$2.html"
-  "$md2html" --codepage 850 "$samples/$3.MD" -o "$work/$3.html"
-  check "$2.MD (CP1252) renders like $1.md" "$work/$2.html" "$work/$1.html"
-  check "$3.MD (CP850) renders like $1.md" "$work/$3.html" "$work/$1.html"
+# (CRLF) must render the same HTML. The originals have spaces in their names.
+for sample in "Hino de Pernambuco|HINOPE|HINOP850" "Poema em linha reta|POEMA|POEMA850"; do
+  IFS='|' read -r name cp1252 cp850 <<< "$sample"
+  "$md2html" --codepage utf8 "$samples/$name.md" -o "$work/$cp1252-utf8.html"
+  "$md2html" --codepage 1252 "$samples/$cp1252.MD" -o "$work/$cp1252.html"
+  "$md2html" --codepage 850 "$samples/$cp850.MD" -o "$work/$cp850.html"
+  check "$cp1252.MD (CP1252) renders like $name.md" "$work/$cp1252.html" "$work/$cp1252-utf8.html"
+  check "$cp850.MD (CP850) renders like $name.md" "$work/$cp850.html" "$work/$cp1252-utf8.html"
 done
 
 ((failures == 0)) || { echo "$failures md2html test(s) failed"; exit 1; }

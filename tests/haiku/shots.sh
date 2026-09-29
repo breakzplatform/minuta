@@ -22,7 +22,7 @@ shot() { "$vm/settle" 20 1 "$out/$1" >/dev/null; echo "$out/$1"; }
 quit_app
 "$vm/ssh" 'rm -f ~/config/settings/Minuta'
 
-open_file samples/poema-em-linha-reta.md
+open_file "samples/Poema em linha reta.md"
 shot dimming.png
 "$vm/click" 600 717                 # "Que contasse, não uma violência, mas uma cobardia!"
 "$vm/key" alt-shift-f
@@ -50,7 +50,7 @@ shot fullscreen.png
 "$vm/key" esc
 quit_app
 
-open_file samples/hino-de-pernambuco.md
+open_file "samples/Hino de Pernambuco.md"
 shot hino-editor.png
 "$vm/key" alt-r
 shot hino-preview.png
