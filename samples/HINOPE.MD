@@ -1,10 +1,6 @@
 # Hino de Pernambuco
 
-> Official anthem of the state of Pernambuco. Lyrics by Oscar
-> Brandão da Rocha, music by Nicolino Milano (1908). Official
-> texts are not under copyright in Brazil (Law 9.610/1998,
-> art. 8). Text from Wikisource:
-> <https://pt.wikisource.org/wiki/Hino_do_estado_de_Pernambuco>
+> Letra: Oscar Brandão da Rocha · Música: Nicolino Milano
 
 Coração do Brasil, em teu seio  
 Corre o sangue de heróis - rubro veio  

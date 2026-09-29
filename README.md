@@ -156,6 +156,21 @@ FreeDOS and MS-DOS 6.22 virtual machines, and `tools/haiku-vm` and
 test the programs and take these screenshots. The Markdown parser is md4c
 0.6.0, in `vendor/md4c`.
 
+## Samples
+
+`samples/` has Markdown files for trying Minuta and for the tests. The
+literary ones are in the public domain in Brazil:
+
+- *Hino de Pernambuco*, the state anthem, with lyrics by Oscar Brandão da
+  Rocha and music by Nicolino Milano. Official texts are not covered by
+  copyright in Brazil (Law 9.610/1998, art. 8).
+- *Poema em linha reta* by Álvaro de Campos, a heteronym of Fernando
+  Pessoa, who died in 1935.
+
+Both texts come from Wikisource. Each has 8.3 copies in Windows-1252 and
+code page 850 for Windows 98 and DOS (`HINOPE.MD`, `POEMA.MD` and the
+`*850.MD` files); `tools/dos-samples.sh` rebuilds them from the originals.
+
 ## License
 
 GPL-3.0-only with additional terms, see [LICENSE](LICENSE) and [NOTICE](NOTICE). md4c is also under the MIT license, in

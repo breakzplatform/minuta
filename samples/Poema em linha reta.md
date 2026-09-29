@@ -1,8 +1,6 @@
 # Poema em linha reta
 
-> By Álvaro de Campos, heteronym of Fernando Pessoa
-> (1888-1935); public domain. Text from Wikisource:
-> <https://pt.wikisource.org/wiki/Poema_em_Linha_Reta>
+> Álvaro de Campos (Fernando Pessoa)
 
 Nunca conheci quem tivesse levado porrada.  
 Todos os meus conhecidos têm sido campeões em tudo.
