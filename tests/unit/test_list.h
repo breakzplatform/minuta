@@ -26,3 +26,6 @@ TEST(test_document_new_file)
 TEST(test_stats_counts)
 TEST(test_stats_reading_time)
 TEST(test_stats_sentences)
+
+/* UTF-8 core tests (tests/unit/test_document_utf8.c, test_stats_utf8.c, test_styled.c) */
+#include "test_list_utf8.h"
