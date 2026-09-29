@@ -198,6 +198,11 @@ static LRESULT tracked_edit(HWND window, UINT message, WPARAM wparam, LPARAM lpa
     return result;
 }
 
+void editor_replace_selection(const char *text)
+{
+    tracked_edit(app.editor, EM_REPLACESEL, TRUE, (LPARAM)text);
+}
+
 void editor_replace(long start, long end, const char *text, long size)
 {
     CHARRANGE range;
@@ -328,12 +333,17 @@ static int character_width(void)
 
 void editor_layout(void)
 {
+    editor_layout_control(app.editor);
+}
+
+void editor_layout_control(HWND control)
+{
     RECT client;
     RECT column;
     int width;
     int margin;
 
-    GetClientRect(app.editor, &client);
+    GetClientRect(control, &client);
     /* One extra character so RichEdit's caret never forces an early wrap. */
     width = (app.settings.column_width + 1) * character_width();
     margin = (client.right - width) / 2;
@@ -347,7 +357,7 @@ void editor_layout(void)
     if (column.right <= column.left) {
         column.right = column.left + 1;
     }
-    SendMessage(app.editor, EM_SETRECT, 0, (LPARAM)&column);
+    SendMessage(control, EM_SETRECT, 0, (LPARAM)&column);
 }
 
 int editor_set_text(const char *text, size_t size)

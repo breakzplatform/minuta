@@ -6,8 +6,10 @@
 #include <richedit.h>
 
 #include "app.h"
+#include "commands.h"
 #include "editor.h"
 #include "files.h"
+#include "preview.h"
 #include "resource.h"
 #include "style.h"
 #include "trace.h"
@@ -87,6 +89,41 @@ static void apply_view_settings(void)
     editor_apply_settings();
     update_menu_checks();
     style_settings_changed();
+    preview_apply_settings();
+    if (app.previewing) {
+        preview_show();
+    }
+}
+
+static void toggle_preview(void)
+{
+    if (app.previewing) {
+        preview_hide();
+    } else {
+        preview_show();
+    }
+    update_menu_checks();
+}
+
+/* Commands that change or search the text work on the editor. */
+static int needs_editor(int id)
+{
+    switch (id) {
+    case IDM_FILE_NEW:
+    case IDM_FILE_OPEN:
+    case IDM_EDIT_UNDO:
+    case IDM_EDIT_REDO:
+    case IDM_EDIT_CUT:
+    case IDM_EDIT_PASTE:
+    case IDM_EDIT_FIND:
+    case IDM_EDIT_FIND_NEXT:
+    case IDM_EDIT_REPLACE:
+    case IDM_VIEW_FOCUS:
+    case IDM_VIEW_TYPEWRITER:
+        return 1;
+    default:
+        return 0;
+    }
 }
 
 static void toggle(int *setting)
@@ -152,18 +189,33 @@ static void show_about(void)
 
 static void on_command(int id)
 {
+    if (app.previewing && needs_editor(id)) {
+        preview_hide();
+        update_menu_checks();
+    }
     switch (id) {
     case IDM_FILE_NEW:          files_new(); break;
     case IDM_FILE_OPEN:         files_open(); break;
     case IDM_FILE_SAVE:         files_save(); break;
     case IDM_FILE_SAVE_AS:      files_save_as(); break;
+    case IDM_FILE_EXPORT:       export_document(); break;
     case IDM_FILE_EXIT:         PostMessage(app.window, WM_CLOSE, 0, 0); break;
     case IDM_EDIT_UNDO:         undo_undo(); break;
     case IDM_EDIT_REDO:         undo_redo(); break;
     case IDM_EDIT_CUT:          SendMessage(app.editor, WM_CUT, 0, 0); break;
-    case IDM_EDIT_COPY:         SendMessage(app.editor, WM_COPY, 0, 0); break;
+    case IDM_EDIT_COPY:         SendMessage(app.previewing ? app.preview : app.editor, WM_COPY, 0, 0); break;
     case IDM_EDIT_PASTE:        SendMessage(app.editor, EM_PASTESPECIAL, CF_TEXT, 0); break;
-    case IDM_EDIT_SELECT_ALL:   SendMessage(app.editor, EM_SETSEL, 0, -1); break;
+    case IDM_EDIT_SELECT_ALL:   SendMessage(app.previewing ? app.preview : app.editor, EM_SETSEL, 0, -1); break;
+    case IDM_EDIT_FIND:         find_open(0); break;
+    case IDM_EDIT_FIND_NEXT:    find_next(); break;
+    case IDM_EDIT_REPLACE:      find_open(1); break;
+    case IDM_VIEW_PREVIEW:      toggle_preview(); break;
+    case IDM_VIEW_ESCAPE:
+        if (app.previewing) {
+            toggle_preview();
+        }
+        break;
+    case IDM_VIEW_COUNTERS:     counters_show(); break;
     case IDM_VIEW_NIGHT:
         app.settings.night = !app.settings.night;
         apply_view_settings();
@@ -194,11 +246,19 @@ static void remember_placement(void)
 
 static LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 {
+    if (message == find_message() && message != 0) {
+        find_handle(lparam);
+        return 0;
+    }
     switch (message) {
     case WM_SIZE:
         if (app.editor != NULL) {
             MoveWindow(app.editor, 0, 0, LOWORD(lparam), HIWORD(lparam), TRUE);
             editor_layout();
+            if (app.preview != NULL) {
+                MoveWindow(app.preview, 0, 0, LOWORD(lparam), HIWORD(lparam), TRUE);
+                editor_layout_control(app.preview);
+            }
             style_settings_changed();
         }
         return 0;
@@ -210,7 +270,7 @@ static LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM wpara
         return 0;
     case WM_SETFOCUS:
         if (app.editor != NULL) {
-            SetFocus(app.editor);
+            SetFocus(app.previewing ? app.preview : app.editor);
         }
         return 0;
     case WM_COMMAND:
@@ -326,6 +386,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         MessageBox(app.window, "Minuta needs RICHED20.DLL (RichEdit 2.0).", APP_NAME, MB_OK | MB_ICONSTOP);
         return 1;
     }
+    app.preview = preview_create(app.window);
     app.accelerators = LoadAccelerators(instance, MAKEINTRESOURCE(IDR_ACCELERATORS));
     apply_view_settings();
 
@@ -346,6 +407,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
         if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
             if (message.message == WM_QUIT) {
                 break;
+            }
+            if (find_dialog() != NULL && IsDialogMessage(find_dialog(), &message)) {
+                continue;
             }
             if (!TranslateAccelerator(app.window, app.accelerators, &message)) {
                 TranslateMessage(&message);

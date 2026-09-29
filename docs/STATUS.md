@@ -135,3 +135,39 @@ and the `Trace=1` log):
 Open issues:
 - In a 1 MB document the scrollbar thumb lags behind RichEdit's lazy layout
   (it can sit at the top while showing the end).
+
+## Milestone 5 — preview, export, counters, search: done
+
+- `src/win/preview.c`: Ctrl+R renders the document through the core md4c →
+  RTF renderer into a read-only RichEdit laid out like the editor; it opens
+  at the editor's caret (source ↔ rendered anchors) and Esc/Ctrl+R returns
+  to the editor, at the matching place if the preview was scrolled or
+  clicked, else at the old caret.
+- `src/win/commands.c`: Export HTML (Ctrl+E; core `export_html`: full page,
+  small IE-compatible stylesheet, charset of the document's encoding, the
+  saved form of the text so characters outside CP1252 survive), then an
+  optional "open in browser" through `ShellExecuteA` from SHELL32 loaded at
+  run time. Word count overlay (Ctrl+Shift+W). Find, Find Next (F3) and
+  Replace (Ctrl+H) with the common dialogs; replacements are undoable.
+- `tests/vm/preview.sh` on win98 (`build/vm-preview.log`):
+  - Acceptance 4: `m5-preview.png`, `m5-preview-code.png`,
+    `m5-preview-table.png` show the smoke sample (`samples/SMOKE.MD`)
+    rendered: headings, emphasis, inline code, underlined link, nested and
+    ordered lists, task items, code block, quote, rule, table, image
+    placeholder, strikethrough. `m5-preview-lists.png` opened at the caret;
+    `m5-back-to-editor.png` after scrolling the preview and pressing Esc.
+  - Acceptance 6: `m5-export-ie5.png`: `TESTE.MD` (CP1252) exported as a
+    windows-1252 page and opened in IE 5 with correct accents; the pulled
+    file has the accents as CP1252 bytes. `m5-export-unicode-ie5.png`: the
+    UTF-8 sample exports as UTF-8 with 日本語 and 😀 intact (IE 5 on an
+    English Windows 98 has no CJK font, hence boxes).
+  - `m5-counters.png`, `m5-find.png`.
+- `MINUTA.EXE` is 199 KB and still imports only KERNEL32, USER32, GDI32 and
+  COMDLG32.
+
+Decisions:
+- SHELL32 (for `ShellExecute`) is loaded with `LoadLibrary`, keeping the
+  import table to the DLLs the spec lists.
+- The export's encoding follows the document (UTF-8 or windows-1252); there
+  is no separate choice.
+- Replace is implemented (the spec made it optional).
