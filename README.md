@@ -166,10 +166,15 @@ literary ones are in the public domain in Brazil:
   copyright in Brazil (Law 9.610/1998, art. 8).
 - *Poema em linha reta* by Álvaro de Campos, a heteronym of Fernando
   Pessoa, who died in 1935.
+- *Luar do Sertão* (1914), with lyrics by Catulo da Paixão Cearense, who
+  died in 1946. The melody is also credited to João Pernambuco, who died in
+  1947; Catulo claimed the song as his alone, and who wrote the tune is
+  still disputed.
 
-Both texts come from Wikisource. Each has 8.3 copies in Windows-1252 and
-code page 850 for Windows 98 and DOS (`HINOPE.MD`, `POEMA.MD` and the
-`*850.MD` files); `tools/dos-samples.sh` rebuilds them from the originals.
+The anthem and the poem come from Wikisource and *Luar do Sertão* from
+Blocos Online. Each sample has 8.3 copies in Windows-1252 and code page 850
+for Windows 98 and DOS (`HINOPE.MD`, `POEMA.MD`, `LUAR.MD` and the `*850.MD`
+files); `tools/dos-samples.sh` rebuilds them from the originals.
 
 ## License
 

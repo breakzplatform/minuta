@@ -50,7 +50,8 @@ else echo "ok   unknown code page is rejected"; fi
 
 # The literary samples: the UTF-8 original and its CP1252 and CP850 copies
 # (CRLF) must render the same HTML. The originals have spaces in their names.
-for sample in "Hino de Pernambuco|HINOPE|HINOP850" "Poema em linha reta|POEMA|POEMA850"; do
+for sample in "Hino de Pernambuco|HINOPE|HINOP850" "Poema em linha reta|POEMA|POEMA850" \
+    "Luar do Sertão|LUAR|LUAR850"; do
   IFS='|' read -r name cp1252 cp850 <<< "$sample"
   "$md2html" --codepage utf8 "$samples/$name.md" -o "$work/$cp1252-utf8.html"
   "$md2html" --codepage 1252 "$samples/$cp1252.MD" -o "$work/$cp1252.html"

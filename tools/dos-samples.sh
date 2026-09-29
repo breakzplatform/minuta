@@ -11,4 +11,5 @@ while IFS='|' read -r name cp1252 cp850; do
 done <<'LIST'
 Hino de Pernambuco|HINOPE|HINOP850
 Poema em linha reta|POEMA|POEMA850
+Luar do Sertão|LUAR|LUAR850
 LIST
