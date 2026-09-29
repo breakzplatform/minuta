@@ -1,10 +1,17 @@
 # Minuta
 
-Minuta is a small Markdown editor for Windows 98. It shows one column of
-monospaced text, keeps the Markdown syntax on screen in a lighter gray, and
-has a focus mode, a night theme and a full screen mode for writing without
-distractions. It comes with `md2html`, a converter for the Win32 console and
-for DOS.
+Minuta is a small Markdown editor with two native versions: one for
+Windows 98 and one for Haiku. It shows one column of monospaced text, keeps
+the Markdown syntax on screen in a lighter gray, and has a focus mode,
+typewriter scrolling, a night theme and a full screen mode for writing
+without distractions. It comes with `md2html`, a converter for the Win32
+console and for DOS.
+
+Both versions share the same Markdown code (`src/core` and
+[md4c](https://github.com/mity/md4c)); each has its own user interface
+written for its system.
+
+## Windows 98
 
 ![Minuta editing a poem on Windows 98](docs/shots/editor.png)
 
@@ -15,13 +22,26 @@ for DOS.
 
 ![The Minuta icon in Explorer](docs/shots/explorer.png)
 
+## Haiku
+
+![Minuta editing the anthem of Pernambuco on Haiku](docs/shots/haiku/hino-editor.png)
+
+| | |
+|---|---|
+| ![Focus mode](docs/shots/haiku/focus-sentence.png) | ![Night theme](docs/shots/haiku/night.png) |
+| ![Preview of the rendered document](docs/shots/haiku/hino-preview.png) | ![Full screen](docs/shots/haiku/fullscreen.png) |
+
+![Markdown files with the Minuta icon in Tracker](docs/shots/haiku/launch-tracker.png)
+
 The texts in the screenshots are in `samples/`: "Poema em linha reta" by
 Álvaro de Campos and the anthem of Pernambuco, both in the public domain.
 
 ## Download
 
-Get the ZIP files from the
-[releases page](https://github.com/breakzplatform/minuta/releases):
+Get the files from the
+[releases page](https://github.com/breakzplatform/minuta/releases).
+
+**Windows 98**
 
 - `minuta-0.1.0-win98.zip` has `MINUTA.EXE`, `MD2HTMLW.EXE`, `README.TXT`
   and `LICENSE.TXT`. Unzip it into any folder and run `MINUTA.EXE`. There is
@@ -37,43 +57,65 @@ Get the ZIP files from the
 Minuta runs on Windows 98 SE and should also run on Windows 98 and ME, which
 I have not tested. It needs `RICHED20.DLL`, which Windows 98 SE includes.
 
+**Haiku**
+
+`minuta-0.1.0-1-x86_64.hpkg` is a Haiku package. Double-click it and click
+Install in HaikuDepot, or run `pkgman install minuta-0.1.0-1-x86_64.hpkg`.
+Minuta then appears in Deskbar under Applications, and a `minuta` command
+opens files from Terminal. It runs on Haiku R1/beta6 and later, 64-bit.
+[docs/haiku.md](docs/haiku.md) has more on installing and using it.
+
 ## Using Minuta
 
 Open a file from the command line or with File > Open. Minuta reopens the
-last file when you start it without one.
+last file when you start it without one. On Haiku you can also double-click
+Markdown files in Tracker or drop them on a Minuta window.
 
-| Keys | Action |
-|---|---|
-| Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S | New, open, save, save as |
-| Ctrl+E | Export HTML, and open it in the browser if you like |
-| Ctrl+R | Preview the rendered document; Esc or Ctrl+R goes back |
-| Ctrl+Shift+F | Focus mode: fade everything but the current sentence |
-| Ctrl+Shift+P | Focus on the whole paragraph instead |
-| Ctrl+Shift+T | Typewriter scrolling: keep the caret line in the middle |
-| Ctrl+Shift+N | Night theme |
-| F11 | Full screen, without window frame, menu or taskbar; F11 or Esc to leave |
-| Ctrl+Shift+W | Word count, characters and reading time |
-| Ctrl+F, F3, Ctrl+H | Find, find next, replace |
-| Ctrl+Z, Ctrl+Y | Undo and redo, a word at a time |
-| Ctrl+= and Ctrl+- | Larger or smaller text |
-| Ctrl+] and Ctrl+[ | Wider or narrower column, from 50 to 80 characters |
+The shortcuts are the same on both systems, except that Haiku uses its
+Command key (Alt, unless you changed it) where Windows uses Ctrl.
+
+| Windows 98 | Haiku | Action |
+|---|---|---|
+| Ctrl+N, Ctrl+O | Alt+N, Alt+O | New, open |
+| Ctrl+S, Ctrl+Shift+S | Alt+S, Alt+Shift+S | Save, save as |
+| Ctrl+E | Alt+E, Alt+Shift+E | Export HTML, and open it in the browser if you like |
+| Ctrl+R | Alt+R | Preview the rendered document; Esc goes back to the same place |
+| Ctrl+Shift+F | Alt+Shift+F | Focus mode: fade everything but the current sentence |
+| Ctrl+Shift+P | Alt+Shift+P | Focus on the whole paragraph instead |
+| Ctrl+Shift+T | Alt+Shift+T | Typewriter scrolling: keep the caret line in the middle |
+| Ctrl+Shift+N | Alt+Shift+N | Night theme |
+| F11 | F11 or Alt+Enter | Full screen, without window frame or menu; Esc to leave |
+| Ctrl+Shift+W | Alt+Shift+W | Word count, characters and reading time |
+| Ctrl+F, F3 | Alt+F, Alt+G | Find, find next |
+| Ctrl+H | | Replace (Windows only) |
+| Ctrl+Z, Ctrl+Y | Alt+Z | Undo; redo on Windows |
+| Ctrl+= and Ctrl+- | Alt+= and Alt+- | Larger or smaller text |
+| Ctrl+] and Ctrl+[ | View > Column width | Wider or narrower column, from 50 to 80 characters |
+
+### Files and encodings
 
 Files that start with a UTF-8 byte order mark, or that are valid UTF-8, open
 as UTF-8. Anything else opens as Windows-1252. Minuta saves a file in the
-encoding it was read in and keeps its line endings. New files are UTF-8 with
-CRLF line endings. Save As lets you pick UTF-8 or Windows-1252.
+encoding it was read in and keeps its byte order mark and line endings. New
+files are UTF-8, with CRLF line endings on Windows and LF on Haiku.
 
-The editor works in Windows-1252, so characters outside it, such as Greek,
-Japanese or emoji, appear as `?`. Lines you don't edit are written back
-exactly as they were, so those characters survive a save.
+On Windows the editor works in Windows-1252, so characters outside it, such
+as Greek, Japanese or emoji, appear as `?`. Lines you don't edit are written
+back exactly as they were, so those characters survive a save. Save As lets
+you pick UTF-8 or Windows-1252. The Haiku version works in UTF-8 and shows
+every character.
 
-While a document has unsaved changes, Minuta writes a copy to `name.md~`
-every 30 seconds and deletes it when you save or close.
+On Windows, while a document has unsaved changes, Minuta writes a copy to
+`name.md~` every 30 seconds and deletes it when you save or close. The
+Haiku version has no autosave yet.
 
-`MINUTA.INI` keeps the font (`Font`, `FontSize`), the column width
-(`ColumnWidth`), the modes (`Night`, `Focus`, `FocusParagraph`,
+### Settings
+
+On Windows, `MINUTA.INI` keeps the font (`Font`, `FontSize`), the column
+width (`ColumnWidth`), the modes (`Night`, `Focus`, `FocusParagraph`,
 `Typewriter`), the last file and the window position. `Trace=1` writes a
-diagnostic log to `TRACE.TXT`.
+diagnostic log to `TRACE.TXT`. On Haiku the same choices are kept in
+`~/config/settings/Minuta`.
 
 ### md2html
 
@@ -89,8 +131,9 @@ and 5 understand. The other options are md4c's; see `--help`.
 
 ## Building
 
-You need [Open Watcom 2.0](https://github.com/open-watcom/open-watcom-v2),
-GNU make, and clang for the tests. The Makefile looks for Open Watcom in
+**Windows 98 and DOS.** You need
+[Open Watcom 2.0](https://github.com/open-watcom/open-watcom-v2), GNU make,
+and clang for the tests. The Makefile looks for Open Watcom in
 `~/vms/retro/toolchain/ow2`; set `WATCOM` to use another location.
 
     make win    # build/bin/MINUTA.EXE and build/bin/MD2HTMLW.EXE
@@ -98,11 +141,20 @@ GNU make, and clang for the tests. The Makefile looks for Open Watcom in
     make test   # unit tests and md2html tests, built natively
     make dist   # the release ZIPs in build/dist
 
-The code in `src/core` is plain C and is tested on the host. `src/win` is the
-Windows program and `src/cli` is md2html. `tests/vm` has the scripts that
-drive the Windows 98, FreeDOS and MS-DOS 6.22 virtual machines used to test
-the program and take these screenshots. The Markdown parser is
-[md4c](https://github.com/mity/md4c) 0.6.0, in `vendor/md4c`.
+**Haiku.** On Haiku, with the development tools the installer includes
+(gcc, make and the system headers):
+
+    make -C src/haiku            # src/haiku/objects/Minuta
+    make -C src/haiku install    # into ~/config/non-packaged, with a `minuta` command
+    make -C src/haiku package    # src/haiku/objects/minuta-0.1.0-1-x86_64.hpkg
+
+The code in `src/core` is plain C and is tested on the host with
+`make test`. `src/win` is the Windows program, `src/haiku` the Haiku one and
+`src/cli` is md2html. `tests/vm` has the scripts that drive the Windows 98,
+FreeDOS and MS-DOS 6.22 virtual machines, and `tools/haiku-vm` and
+`tests/haiku` do the same for a Haiku virtual machine; they were used to
+test the programs and take these screenshots. The Markdown parser is md4c
+0.6.0, in `vendor/md4c`.
 
 ## License
 

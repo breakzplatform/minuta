@@ -1,0 +1,6 @@
+#!/bin/bash
+# Start a GUI program in the guest, detached from the SSH session (output in
+# /tmp/launch.log), from ~/minuta. usage: launch COMMAND...
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+"$BIN/ssh" "cd ~/minuta && ($* >/tmp/launch.log 2>&1 &)"

@@ -29,3 +29,6 @@ TEST(test_stats_reading_time)
 TEST(test_stats_sentences)
 TEST(test_export_utf8)
 TEST(test_export_cp1252)
+
+/* UTF-8 core tests (tests/unit/test_document_utf8.c, test_stats_utf8.c, test_styled.c) */
+#include "test_list_utf8.h"

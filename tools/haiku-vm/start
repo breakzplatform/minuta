@@ -1,0 +1,39 @@
+#!/bin/bash
+# Start the Haiku VM headless: VNC 127.0.0.1:5904, HMP monitor run/haiku.mon,
+# QMP run/haiku.qmp, SSH forwarded to 127.0.0.1:2222.
+# The disk is on AHCI: Haiku R1/beta6 detects virtio-blk but publishes no disk device for it.
+# usage: start [--loadvm TAG] [--cd ISO] [--volatile] [--boot c|d]
+#   --loadvm   resume a saved state (e.g. "ready"); the disk goes back to the tag too
+#   --volatile discard disk writes on stop (qemu -snapshot; ignored with --loadvm)
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+is_running && { echo "$VM already running (pid $(cat "$PIDFILE"))"; exit 0; }
+# Only one Haiku VM at a time: the Mac has 8 GB.
+if pgrep -f 'qemu-system-x86_64 -name haiku' >/dev/null; then
+  echo "another Haiku VM is running" >&2; exit 1
+fi
+cd_file="" boot=c extra=()
+while (($#)); do
+  case $1 in
+    --cd) cd_file=$2; shift 2 ;;
+    --boot) boot=$2; shift 2 ;;
+    --volatile) extra+=(-snapshot); shift ;;
+    --loadvm) extra+=(-loadvm "$2"); shift 2 ;;
+    *) echo "unknown option $1" >&2; exit 2 ;;
+  esac
+done
+cd_args=()
+[[ -n $cd_file ]] && cd_args=(-drive "file=$cd_file,media=cdrom,if=ide,index=2,readonly=on,format=raw")
+rm -f "$MON" "$QMP"
+qemu-system-x86_64 -name "$VM" -machine pc -accel tcg,thread=multi -cpu max -smp 2 -m 2048 \
+  -vga std -rtc base=utc \
+  -device ahci,id=ahci -drive "id=disk0,file=$DISK,if=none,format=qcow2,cache=writeback" \
+  -device ide-hd,drive=disk0,bus=ahci.0,bootindex=1 \
+  ${cd_args[@]+"${cd_args[@]}"} \
+  -nic "user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:$SSH_PORT-:22" \
+  -usb -device usb-tablet \
+  -boot "$boot" ${extra[@]+"${extra[@]}"} \
+  -display none -vnc "127.0.0.1:$VNC_DISPLAY" \
+  -monitor "unix:$MON,server,nowait" -qmp "unix:$QMP,server,nowait" \
+  -pidfile "$PIDFILE" -daemonize
+echo "$VM started: vnc://127.0.0.1:$((5900 + VNC_DISPLAY))  ssh: $BIN/ssh"

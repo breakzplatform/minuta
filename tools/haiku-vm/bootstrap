@@ -1,0 +1,15 @@
+#!/bin/bash
+# Serve guest-bootstrap.sh and the VM's public key on 127.0.0.1:8765 (the
+# guest sees it as 10.0.2.2:8765) and type the command that runs it.
+# usage: bootstrap [TARGET_ROOT]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+[[ -f $SSH_KEY ]] || ssh-keygen -q -t ed25519 -N '' -C minuta-haiku-vm -f "$SSH_KEY"
+serve=$(mktemp -d)
+cp "$BIN/guest-bootstrap.sh" "$SSH_KEY.pub" "$serve/"
+python3 -m http.server 8765 --bind 127.0.0.1 --directory "$serve" >/dev/null 2>&1 &
+server=$!
+trap 'kill $server; rm -rf "$serve"' EXIT
+sleep 1
+"$BIN/typeln" "curl -s http://10.0.2.2:8765/guest-bootstrap.sh | sh -s ${1:-}"
+sleep 10

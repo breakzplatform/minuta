@@ -1,0 +1,8 @@
+#!/bin/bash
+# With the VM stopped, revert the disk to an internal snapshot (default: clean).
+# usage: reset [TAG]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+is_running && { echo "stop the VM first" >&2; exit 1; }
+qemu-img snapshot -a "${1:-clean}" "$DISK"
+echo "disk reverted to ${1:-clean}"

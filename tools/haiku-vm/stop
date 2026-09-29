@@ -1,0 +1,16 @@
+#!/bin/bash
+# Stop the VM. Default: hard power-off. --guest: shut Haiku down over SSH
+# first (flushes the disk), falling back to ACPI power button, then power off.
+# usage: stop [--guest]
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+is_running || { echo "$VM is not running"; exit 0; }
+pid=$(cat "$PIDFILE")
+if [[ ${1:-} == --guest ]]; then
+  "$BIN/ssh" shutdown >/dev/null 2>&1 || "$BIN/mon" system_powerdown >/dev/null || true
+  for _ in $(seq 120); do kill -0 "$pid" 2>/dev/null || break; sleep 1; done
+fi
+kill -0 "$pid" 2>/dev/null && "$BIN/mon" quit >/dev/null 2>&1 || true
+for _ in $(seq 20); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
+rm -f "$PIDFILE" "$MON" "$QMP"
+echo "$VM stopped"

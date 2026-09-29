@@ -156,7 +156,7 @@ static void emit_code_point(struct renderer *r, unsigned long code_point)
     } else {
         byte = codepage_from_unicode(ENCODING_CP1252, code_point);
         if (byte >= 0x80) {
-            sprintf(text, "\\'%02x", (unsigned)byte);
+            sprintf(text, "\\'%02x", (unsigned)byte & 0xFFu);
             append(r, text);
         } else if (code_point > 0xFFFF) {
             code_point -= 0x10000;

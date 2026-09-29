@@ -1,0 +1,12 @@
+#!/bin/bash
+# Copy files from the VM to the Mac.
+# usage: pull GUEST_PATH... HOST_DIR
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+(($# >= 2)) || { echo "usage: pull GUEST_PATH... HOST_DIR" >&2; exit 2; }
+dest=${!#}
+srcs=("${@:1:$#-1}")
+mkdir -p "$dest"
+for s in "${srcs[@]}"; do
+  /usr/bin/scp -q "${SCP_OPTS[@]}" "$SSH_TARGET:$s" "$dest/"
+done

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Sync the repo into the VM and build the Haiku port there.
+# usage: build [make arguments...]     (runs make -C src/haiku in ~/minuta)
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+"$BIN/push"
+"$BIN/ssh" "cd ~/minuta && make -C src/haiku $*"

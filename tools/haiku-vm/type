@@ -1,0 +1,11 @@
+#!/bin/bash
+# Type into the VM with QEMU sendkey (US layout in the guest).
+# usage: type "text"      types text literally
+#        typeln "text"    same, then Enter
+#        key KEY...       raw sendkey combos, e.g. key ret alt-q ctrl-alt-delete
+set -euo pipefail
+. "$(dirname "$0")/_common.sh"
+mode=$(basename "$0")
+cmds=()
+while IFS= read -r line; do cmds+=("$line"); done < <(python3 "$BIN/_keys.py" "$mode" "$@")
+"$BIN/mon" "${cmds[@]}" >/dev/null
