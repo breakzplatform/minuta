@@ -176,6 +176,10 @@ Blocos Online. Each sample has 8.3 copies in Windows-1252 and code page 850
 for Windows 98 and DOS (`HINOPE.MD`, `POEMA.MD`, `LUAR.MD` and the `*850.MD`
 files); `tools/dos-samples.sh` rebuilds them from the originals.
 
+## Why?
+
+Why not?
+
 ## License
 
 GPL-3.0-only with additional terms, see [LICENSE](LICENSE) and [NOTICE](NOTICE). md4c is also under the MIT license, in
