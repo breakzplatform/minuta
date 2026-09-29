@@ -8,5 +8,5 @@ dest=${2:-minuta}
 # After --loadvm the guest clock is where the snapshot left it; sync it so
 # make sees the pushed sources in the past, not the future.
 "$BIN/ssh" "date -u -s @$(date +%s) >/dev/null"
-rsync -a --delete --exclude .git --exclude build/ --exclude 'docs/shots/' \
+rsync -a --delete --exclude .git --exclude build/ --exclude src/haiku/objects/ --exclude 'docs/shots/' \
   -e "/usr/bin/ssh ${SSH_OPTS[*]}" "$repo/" "$SSH_TARGET:$dest/"
