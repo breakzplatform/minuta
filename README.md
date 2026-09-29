@@ -75,3 +75,8 @@ Haiku command key (Alt by default) where Windows uses Ctrl:
   background, so code is shown in its own color instead of on a shaded
   background, and it has no line spacing setting; there is no autosave and
   no replace.
+
+## License
+
+GPL-3.0-only with additional terms, see [LICENSE](LICENSE) and [NOTICE](NOTICE). Vendored md4c keeps its own MIT license in
+`vendor/md4c/LICENSE.md`.
