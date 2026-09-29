@@ -110,6 +110,8 @@ Run on the VMs in `~/vms/retro` using `--loadvm ready`:
   milestone, conventional commits.
 - README (English) with build, test and usage; screenshots in `docs/`.
 - Barsa note `20-professional/minuta.md` (product) once v0.1 passes.
+- License: GPL-3.0-only (`LICENSE` and `NOTICE` at the root, copyright 2026 Joselito Junior);
+  md4c keeps its MIT license in `vendor/md4c/`.
 
 ## Milestones
 

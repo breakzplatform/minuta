@@ -132,5 +132,6 @@ Found with the probes in `tests/win/` and the traces:
 
 ## License
 
-md4c is MIT-licensed (`vendor/md4c/LICENSE.md`). No license has been chosen
-for Minuta itself yet.
+Minuta is released under the GNU GPL version 3 only, copyright (c) 2026 Joselito
+Junior; see [LICENSE](LICENSE). The vendored md4c keeps its own MIT license
+in `vendor/md4c/LICENSE.md`.
