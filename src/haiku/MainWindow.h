@@ -36,6 +36,7 @@ public:
 	virtual	void				MessageReceived(BMessage* message);
 	virtual	bool				QuitRequested();
 	virtual	void				MenusBeginning();
+	virtual	void				DispatchMessage(BMessage* message, BHandler* handler);
 
 private:
 			BMenuBar*			_BuildMenus();
@@ -48,6 +49,7 @@ private:
 			void				_Export(const entry_ref& directory, const char* name,
 									bool open);
 			void				_TogglePreview();
+			void				_ToggleFullScreen();
 			void				_ShowCounters();
 			void				_Find(const BString& text, bool caseSensitive,
 									bool backwards);
@@ -57,7 +59,9 @@ private:
 			PreviewView*		fPreview;
 			BScrollView*		fEditorScroll;
 			BScrollView*		fPreviewScroll;
+			BMenuBar*			fMenuBar;
 			BMenuItem*			fPreviewItem;
+			BMenuItem*			fFullScreenItem;
 			BMenuItem*			fNightItem;
 			BMenuItem*			fFocusItem;
 			BMenuItem*			fFocusParagraphItem;
@@ -73,6 +77,9 @@ private:
 			bool				fCloseAfterSave;
 			bool				fOpenExport;
 			bool				fOpenPending;
+			bool				fFullScreen;
+			BRect				fWindowedFrame;
+			window_look			fWindowedLook;
 };
 
 #endif

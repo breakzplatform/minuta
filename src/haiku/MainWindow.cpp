@@ -12,6 +12,7 @@
 #include <NodeInfo.h>
 #include <Path.h>
 #include <Roster.h>
+#include <Screen.h>
 #include <ScrollView.h>
 
 #include <cstdio>
@@ -94,7 +95,9 @@ MainWindow::MainWindow(BRect frame)
 	fHasRef(false),
 	fCloseAfterSave(false),
 	fOpenExport(false),
-	fOpenPending(false)
+	fOpenPending(false),
+	fFullScreen(false),
+	fWindowedLook(B_DOCUMENT_WINDOW_LOOK)
 {
 	document_format_init(&fFormat);
 	fFormat.line_ending = LINE_ENDING_LF;
@@ -111,7 +114,7 @@ MainWindow::MainWindow(BRect frame)
 		B_NO_BORDER);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, 0)
-		.Add(_BuildMenus())
+		.Add(fMenuBar = _BuildMenus())
 		.Add(fEditorScroll)
 		.Add(fPreviewScroll);
 	fPreviewScroll->Hide();
@@ -173,6 +176,7 @@ MainWindow::_BuildMenus()
 
 	BMenu* view = new BMenu("View");
 	fPreviewItem = add_item(view, "Preview", MSG_TOGGLE_PREVIEW, 'R');
+	fFullScreenItem = add_item(view, "Full screen", MSG_TOGGLE_FULL_SCREEN, B_ENTER);
 	view->AddSeparatorItem();
 	fFocusItem = add_item(view, "Focus mode", MSG_TOGGLE_FOCUS, 'F', B_SHIFT_KEY);
 	fFocusParagraphItem = add_item(view, "Focus on paragraph", MSG_TOGGLE_FOCUS_PARAGRAPH,
@@ -274,6 +278,7 @@ void
 MainWindow::MenusBeginning()
 {
 	fPreviewItem->SetMarked(!fPreviewScroll->IsHidden());
+	fFullScreenItem->SetMarked(fFullScreen);
 	fNightItem->SetMarked(gSettings.night);
 	fFocusItem->SetMarked(gSettings.focus);
 	fFocusParagraphItem->SetMarked(gSettings.focusParagraph);
@@ -281,6 +286,29 @@ MainWindow::MenusBeginning()
 	for (int32 i = 0; i < 4; i++)
 		fColumnItems[i]->SetMarked(kColumnWidths[i] == gSettings.columnWidth);
 	BWindow::MenusBeginning();
+}
+
+
+// F11 toggles full screen (Alt+Enter is the menu shortcut, as in
+// Terminal), and Esc leaves it unless the preview is showing: there Esc
+// returns to the editor first.
+void
+MainWindow::DispatchMessage(BMessage* message, BHandler* handler)
+{
+	if (message->what == B_KEY_DOWN || message->what == B_UNMAPPED_KEY_DOWN) {
+		int32 key = message->GetInt32("key", 0);
+		const char* bytes = message->GetString("bytes", "");
+		if (key == B_F11_KEY) {
+			_ToggleFullScreen();
+			return;
+		}
+		if (fFullScreen && bytes[0] == B_ESCAPE && bytes[1] == '\0'
+			&& fPreviewScroll->IsHidden()) {
+			_ToggleFullScreen();
+			return;
+		}
+	}
+	BWindow::DispatchMessage(message, handler);
 }
 
 
@@ -350,6 +378,9 @@ MainWindow::MessageReceived(BMessage* message)
 
 		case MSG_TOGGLE_PREVIEW:
 			_TogglePreview();
+			break;
+		case MSG_TOGGLE_FULL_SCREEN:
+			_ToggleFullScreen();
 			break;
 		case MSG_TOGGLE_NIGHT:
 			gSettings.night = !gSettings.night;
@@ -466,7 +497,7 @@ MainWindow::QuitRequested()
 				return false;
 		}
 	}
-	gSettings.frame = Frame();
+	gSettings.frame = fFullScreen ? fWindowedFrame : Frame();
 	if (fFindWindow.IsValid())
 		fFindWindow.SendMessage(B_QUIT_REQUESTED);
 	be_app->PostMessage(MSG_WINDOW_CLOSED);
@@ -662,6 +693,33 @@ MainWindow::_TogglePreview()
 			fEditor->ScrollToSelection();
 		}
 	}
+}
+
+
+// Distraction-free mode: no border, no menu bar, the whole screen. The
+// menu shortcuts keep working with the menu bar hidden, and the text
+// column stays centered because the views recompute their insets on
+// layout.
+void
+MainWindow::_ToggleFullScreen()
+{
+	if (!fFullScreen) {
+		fWindowedFrame = Frame();
+		fWindowedLook = Look();
+		BRect screen = BScreen(this).Frame();
+		fMenuBar->Hide();
+		SetLook(B_NO_BORDER_WINDOW_LOOK);
+		MoveTo(screen.LeftTop());
+		ResizeTo(screen.Width(), screen.Height());
+		fFullScreen = true;
+	} else {
+		SetLook(fWindowedLook);
+		fMenuBar->Show();
+		MoveTo(fWindowedFrame.LeftTop());
+		ResizeTo(fWindowedFrame.Width(), fWindowedFrame.Height());
+		fFullScreen = false;
+	}
+	Activate();
 }
 
 
