@@ -54,7 +54,7 @@ OW_WARN := $(OW_STRICT)
 VENDOR_OBJS := $(NT_MD4C) $(DOS_MD4C) $(NT_DIR)/cmdline.obj $(DOS_DIR)/cmdline.obj
 $(VENDOR_OBJS): OW_WARN := $(OW_VENDOR)
 
-VERSION := 0.1.0
+VERSION := 0.1.1
 DIST := $(BUILD)/dist
 
 .PHONY: all win dos test dist clean

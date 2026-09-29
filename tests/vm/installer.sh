@@ -8,7 +8,7 @@ repo=$(cd "$(dirname "$0")/../.." && pwd)
 . "$repo/tests/vm/lib.sh"
 out=$work/installer
 mkdir -p "$out"
-cp "$repo/build/dist/minuta-0.1.0-setup.exe" "$work/SETUP.EXE"
+cp "$repo/build/dist/minuta-0.1.1-setup.exe" "$work/SETUP.EXE"
 printf '@echo off\r\nmkdir C:\\DOCS\r\ncopy D:\\POEMA.MD C:\\DOCS > NUL\r\ncls\r\n' > "$work/DOCS.BAT"
 printf 'transfer\r\n' > "$work/XFER.TXT"
 run() { "$bin/key" win98 meta_l-r; sleep 5; "$bin/typeln" win98 "$1"; }

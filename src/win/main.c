@@ -182,7 +182,7 @@ static void choose_font(void)
 static void show_about(void)
 {
     MessageBox(app.window,
-               APP_NAME " 0.1.0\n\nA minimal Markdown editor for Windows 98.\n"
+               APP_NAME " 0.1.1\n\nA minimal Markdown editor for Windows 98.\n"
                "Markdown parsing by md4c (MIT license).",
                "About " APP_NAME, MB_OK | MB_ICONINFORMATION);
 }

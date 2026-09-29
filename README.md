@@ -43,15 +43,15 @@ Get the files from the
 
 **Windows 98**
 
-- `minuta-0.1.0-win98.zip` has `MINUTA.EXE`, `MD2HTMLW.EXE`, `README.TXT`
+- `minuta-0.1.1-win98.zip` has `MINUTA.EXE`, `MD2HTMLW.EXE`, `README.TXT`
   and `LICENSE.TXT`. Unzip it into any folder and run `MINUTA.EXE`. There is
   nothing to install. Settings are saved in `MINUTA.INI` in the same folder.
-- `minuta-0.1.0-setup.exe` installs the same files in Program Files, adds a
+- `minuta-0.1.1-setup.exe` installs the same files in Program Files, adds a
   Start menu entry and makes Minuta the program for `.md` and `.markdown`
   files, so double-clicking one opens it. If another program had `.md`
   before, the uninstaller gives it back; otherwise it removes the
   association.
-- `minuta-0.1.0-dos.zip` has `MD2HTMLD.EXE`, which runs on plain DOS (the
+- `minuta-0.1.1-dos.zip` has `MD2HTMLD.EXE`, which runs on plain DOS (the
   DOS/32A extender is built in).
 
 Minuta runs on Windows 98 SE and should also run on Windows 98 and ME, which

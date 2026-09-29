@@ -1,4 +1,4 @@
-Minuta 0.1.0
+Minuta 0.1.1
 ============
 
 Minuta is a small Markdown editor for Windows 98. It shows one column of
