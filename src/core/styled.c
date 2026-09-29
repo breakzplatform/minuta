@@ -25,6 +25,7 @@ struct list_level {
     int ordered;
     int tight;
     unsigned next_number;
+    unsigned items;       /* items started so far */
     size_t marker_width;  /* width of this level's markers, for continuation lines */
 };
 
@@ -234,19 +235,32 @@ static void new_line(struct renderer *r)
     emit_prefix(r);
 }
 
+/* Whether the block about to start opens an item of a tight list that
+ * follows a sibling item or starts right inside a tight parent item: those
+ * are separated by a line break only. */
+static int starts_tight_item(const struct renderer *r)
+{
+    int levels = list_levels(r);
+    const struct list_level *level;
+
+    if (levels == 0 || !(r->item_start || r->marker[0] != '\0')) {
+        return 0;
+    }
+    level = &r->lists[levels - 1];
+    return level->tight && (level->items > 1 || (levels > 1 && r->lists[levels - 2].tight));
+}
+
 /* Starts a block: a blank line after the previous one (a line break
  * between the items of a tight list), then the line prefix. */
 static void begin_block(struct renderer *r, enum block_kind kind)
 {
-    int levels = list_levels(r);
-
     if (r->block_open) {
         return;
     }
     r->kind = kind;
     if (text(r)->size > 0) {
         buffer_append_char(text(r), '\n');
-        if (!(levels > 0 && r->lists[levels - 1].tight && (r->item_start || r->marker[0] != '\0'))) {
+        if (!starts_tight_item(r)) {
             buffer_append_char(text(r), '\n');
         }
     }
@@ -599,6 +613,7 @@ static void begin_list(struct renderer *r, int ordered, int tight, unsigned star
         level->ordered = ordered;
         level->tight = tight;
         level->next_number = start;
+        level->items = 0;
         level->marker_width = 2;
     }
 }
@@ -612,6 +627,7 @@ static void begin_item(struct renderer *r, const MD_BLOCK_LI_DETAIL *item)
         return;
     }
     level = &r->lists[list_levels(r) - 1];
+    level->items++;
     if (level->ordered) {
         sprintf(r->marker, "%u. ", level->next_number++);
     } else {

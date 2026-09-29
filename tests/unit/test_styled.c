@@ -68,6 +68,9 @@ void test_styled_lists(void)
     check_text("- one\n- two\n  - nested\n- three\n\nafter\n",
                "\xE2\x80\xA2 one\n\xE2\x80\xA2 two\n  \xE2\x80\xA2 nested\n\xE2\x80\xA2 three\n\nafter");
     check_text("3. a\n4. b\n", "3. a\n4. b");
+    /* A tight list after another block, and two lists in a row. */
+    check_text("para\n\n- a\n- b\n\n1. c\n", "para\n\n\xE2\x80\xA2 a\n\xE2\x80\xA2 b\n\n1. c");
+    check_text("```\nx\n```\n- a\n", "  x\n\n\xE2\x80\xA2 a");
     check_text("- loose\n\n  second para\n- next\n",
                "\xE2\x80\xA2 loose\n\n  second para\n\n\xE2\x80\xA2 next");
     check_text("- [ ] todo\n- [x] done\n",
