@@ -48,5 +48,16 @@ if "$md2html" --codepage latin9 "$samples/TESTE.MD" >/dev/null 2>&1; then
   echo "FAIL unknown code page is rejected"; failures=$((failures + 1))
 else echo "ok   unknown code page is rejected"; fi
 
+# The literary samples: the UTF-8 original and its CP1252 and CP850 copies
+# (CRLF) must render the same HTML.
+for sample in "hino-de-pernambuco HINOPE HINOP850" "poema-em-linha-reta POEMA POEMA850"; do
+  set -- $sample
+  "$md2html" --codepage utf8 "$samples/$1.md" -o "$work/$1.html"
+  "$md2html" --codepage 1252 "$samples/$2.MD" -o "$work/$2.html"
+  "$md2html" --codepage 850 "$samples/$3.MD" -o "$work/$3.html"
+  check "$2.MD (CP1252) renders like $1.md" "$work/$2.html" "$work/$1.html"
+  check "$3.MD (CP850) renders like $1.md" "$work/$3.html" "$work/$1.html"
+done
+
 ((failures == 0)) || { echo "$failures md2html test(s) failed"; exit 1; }
 echo "md2html tests passed"
