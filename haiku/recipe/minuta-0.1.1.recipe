@@ -1,8 +1,6 @@
-# Draft HaikuPorts recipe for Minuta (untested with haikuporter).
-# Before submitting: the repository needs a public release tag that
-# includes src/haiku (the current v0.1.0 tag predates the Haiku port);
-# rename the recipe to that version and fill in CHECKSUM_SHA256 for its
-# archive.
+# Draft HaikuPorts recipe for Minuta (untested with haikuporter). Before
+# submitting, fill in CHECKSUM_SHA256 for the v$portVersion archive (the
+# repository is private for now, so the archive is not public yet).
 SUMMARY="A minimal Markdown editor"
 DESCRIPTION="Minuta is a minimal Markdown editor in the spirit of iA Writer: \
 one centered column of monospace text, Markdown syntax kept visible but \

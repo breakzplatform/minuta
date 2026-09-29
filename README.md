@@ -59,8 +59,8 @@ I have not tested. It needs `RICHED20.DLL`, which Windows 98 SE includes.
 
 **Haiku**
 
-`minuta-0.1.0-1-x86_64.hpkg` is a Haiku package. Double-click it and click
-Install in HaikuDepot, or run `pkgman install minuta-0.1.0-1-x86_64.hpkg`.
+`minuta-0.1.1-1-x86_64.hpkg` is a Haiku package. Double-click it and click
+Install in HaikuDepot, or run `pkgman install minuta-0.1.1-1-x86_64.hpkg`.
 Minuta then appears in Deskbar under Applications, and a `minuta` command
 opens files from Terminal. It runs on Haiku R1/beta6 and later, 64-bit.
 [docs/haiku.md](docs/haiku.md) has more on installing and using it.
@@ -146,7 +146,7 @@ and clang for the tests. The Makefile looks for Open Watcom in
 
     make -C src/haiku            # src/haiku/objects/Minuta
     make -C src/haiku install    # into ~/config/non-packaged, with a `minuta` command
-    make -C src/haiku package    # src/haiku/objects/minuta-0.1.0-1-x86_64.hpkg
+    make -C src/haiku package    # src/haiku/objects/minuta-0.1.1-1-x86_64.hpkg
 
 The code in `src/core` is plain C and is tested on the host with
 `make test`. `src/win` is the Windows program, `src/haiku` the Haiku one and
