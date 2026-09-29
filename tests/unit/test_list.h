@@ -6,6 +6,7 @@ TEST(test_encoding_cp1252_round_trip)
 TEST(test_encoding_cp850)
 TEST(test_encoding_unmappable)
 TEST(test_encoding_offsets)
+TEST(test_encoding_entity_worst_case)
 
 /* RTF renderer tests (tests/unit/test_rtf.c) */
 #include "test_list_rtf.h"

@@ -113,3 +113,22 @@ void test_encoding_offsets(void)
     CHECK(utf8_cp1252_offset(utf8, size, 99) == 4);
     free(utf8);
 }
+
+void test_encoding_entity_worst_case(void)
+{
+    char *out;
+    size_t size;
+
+    /* Every invalid byte expands to 8 output bytes, the sizing worst case. */
+    out = encoding_from_utf8("\xFF\xFE\x80", 3, ENCODING_CP1252, UNMAPPABLE_HTML_ENTITY, &size);
+    CHECK_STR(out, size, "&#65533;&#65533;&#65533;");
+    free(out);
+    /* A truncated sequence at the end decodes byte by byte. */
+    out = encoding_from_utf8("a\xE6\x97", 3, ENCODING_CP1252, UNMAPPABLE_HTML_ENTITY, &size);
+    CHECK_STR(out, size, "a&#65533;&#65533;");
+    free(out);
+    /* U+10FFFF: 4 input bytes, 10 output bytes. */
+    out = encoding_from_utf8("\xF4\x8F\xBF\xBF", 4, ENCODING_CP850, UNMAPPABLE_HTML_ENTITY, &size);
+    CHECK_STR(out, size, "&#1114111;");
+    free(out);
+}
