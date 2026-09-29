@@ -24,6 +24,8 @@ at a time (the build Mac has 8 GB).
 | `ssh [cmd...]` | Run a command in the guest as `user`. |
 | `push [REPO] [DEST]` | Sync the clock and rsync the repo to `~/minuta` in the guest. |
 | `pull GUEST_PATH... HOST_DIR` | Copy files back with scp. |
+| `push-file FILE... GUEST_DIR` | Copy single files into the guest. |
+| `launch COMMAND...` | Start a GUI program in `~/minuta`, detached from SSH (log in `/tmp/launch.log`). |
 | `build [make args]` | `push`, then `make -C src/haiku` in the guest. |
 | `shot [--after S] [out.png]` | Screenshot (QEMU `screendump`). |
 | `settle [TIMEOUT] [QUIET] [out.png]` | Wait for the screen to stop changing, then screenshot. |
@@ -37,7 +39,7 @@ at a time (the build Mac has 8 GB).
 
     tools/haiku-vm/start --loadvm ready
     tools/haiku-vm/build
-    tools/haiku-vm/ssh 'cd ~/minuta && src/haiku/objects/Minuta samples/teste-utf8.md &'
+    tools/haiku-vm/launch src/haiku/objects/Minuta samples/teste-utf8.md
     tools/haiku-vm/settle 30 3
     tools/haiku-vm/stop
 
@@ -57,5 +59,8 @@ at a time (the build Mac has 8 GB).
    the disk.
 6. The Installer skips the SSH host keys, so in a Terminal on the installed
    system: `ssh-keygen -A`, reboot.
-7. `ssh 'pkgman install -y rsync'`, `stop --guest`, `snapshot clean`; boot,
-   wait for the desktop, `snapshot ready`.
+7. `ssh 'pkgman install -y rsync'`, `stop --guest`, `snapshot clean`.
+8. Boot, disable the screen saver (it blanks the screen after 10 minutes
+   and spoils screenshots): write `~/config/settings/ScreenSaver_settings`
+   as a flattened BMessage with `timeflags = 0` and `lockenable = false`,
+   reboot, wait for the desktop, `snapshot ready`.
