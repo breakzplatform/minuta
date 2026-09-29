@@ -118,6 +118,20 @@ void test_scanner_fences(void)
         CHECK(shadow.fence_length == state.fence_length && shadow.fence_char == state.fence_char);
     }
     CHECK(state.fence_length == 0);
+
+    /* Replaying only the fence lines gives the same state. */
+    scan_state_init(&shadow);
+    for (i = 0; i < sizeof(lines) / sizeof(lines[0]); i++) {
+        struct fence_info info;
+
+        if (scan_fence_info(lines[i], strlen(lines[i]), &info)) {
+            scan_state_apply_fence(&shadow, &info);
+        }
+        if (i == 1) {
+            CHECK(shadow.fence_length == 3 && shadow.fence_char == '`');
+        }
+    }
+    CHECK(shadow.fence_length == 0);
     CHECK(scan_is_fence_line("   ```", 6));
     CHECK(scan_is_fence_line("~~~ info", 8));
     CHECK(!scan_is_fence_line("    ```", 7));

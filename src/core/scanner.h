@@ -43,6 +43,20 @@ void scan_state_advance(struct scan_state *state, const char *text, size_t size)
  * never change a scan_state. */
 int scan_is_fence_line(const char *text, size_t size);
 
+/* What the editor remembers about a fence line so it can compute the block
+ * state at any line without rereading the text in between. */
+struct fence_info {
+    char fence_char;
+    unsigned length;
+    int bare;  /* nothing but spaces after the fence: it can close a block */
+};
+
+/* Returns 1 and fills info if scan_is_fence_line would return 1. */
+int scan_fence_info(const char *text, size_t size, struct fence_info *info);
+
+/* Applies a fence line to state, exactly like scan_state_advance. */
+void scan_state_apply_fence(struct scan_state *state, const struct fence_info *info);
+
 /* Iterates over runs of equal styles: start with *position = 0 and call
  * until it returns 0. */
 int scan_next_run(const unsigned char *styles, size_t size, size_t *position, struct span_run *run);

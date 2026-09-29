@@ -22,4 +22,11 @@ char *editor_get_text(size_t *size);
  * match the control's character positions (malloc'ed). */
 char *editor_get_raw_text(size_t *size);
 
+/* Replaces [start, end) with text (used by undo), leaving the caret after
+ * it, and updates styling and the modified state. */
+void editor_replace(long start, long end, const char *text, long size);
+
+/* Call on every EN_CHANGE from the editor. */
+void editor_notify_change(void);
+
 #endif

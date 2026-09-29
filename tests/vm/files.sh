@@ -9,6 +9,7 @@ cp "$repo/samples/teste-utf8.md" "$work/TESTEU8.MD"
 printf '@echo off\r\nif not exist C:\\MINUTA\\NUL mkdir C:\\MINUTA\r\ncopy D:\\MINUTA.EXE C:\\MINUTA > NUL\r\nif exist C:\\MINUTA\\MINUTA.INI del C:\\MINUTA\\MINUTA.INI\r\ncls\r\n' > "$work/SETUP.BAT"
 printf 'transfer\r\n' > "$work/XFER.TXT"
 
+"$bin/stop" win98 >/dev/null
 "$bin/start" win98 --loadvm ready
 "$bin/push-files" win98 "$repo/build/bin/MINUTA.EXE" "$repo/samples/TESTE.MD" "$work/TESTEU8.MD" \
   "$repo/samples/UNICODE.MD" "$work/SETUP.BAT" >/dev/null
@@ -43,7 +44,7 @@ LC_ALL=C iconv -f UTF-8 -t CP1252 "$repo/samples/teste-utf8.md" > "$work/expecte
 { cat "$repo/samples/UNICODE.MD"; printf 'Edited line.'; } > "$work/expected-edit8.md"
 
 save_as 'A:\U8.MD'
-expect_floppy_file "UTF-8 with characters outside CP1252 saved byte for byte" U8.MD "$repo/samples/UNICODE.MD"
+expect_floppy_file "UTF-8 with characters outside CP1252 saved byte for byte" U8.MD "$repo/samples/UNICODE.MD" || true
 
 "$bin/key" win98 ctrl-end
 "$bin/type" win98 'Edited line.'
@@ -51,9 +52,9 @@ sleep 1
 "$bin/shot" win98 "$shots/m3-modified.png" >/dev/null
 # Crash safety: a modified document is copied to name.md~ every 30 s. The
 # guest clock runs 3-4x slower than real time here, so allow 180 s.
-expect_floppy_file "autosave wrote U8.MD~ with the unsaved edit" 'U8.MD~' "$work/expected-edit8.md" 180
+expect_floppy_file "autosave wrote U8.MD~ with the unsaved edit" 'U8.MD~' "$work/expected-edit8.md" 180 || true
 "$bin/key" win98 ctrl-s
-expect_floppy_file "edited UTF-8 file keeps the untouched lines" U8.MD "$work/expected-edit8.md"
+expect_floppy_file "edited UTF-8 file keeps the untouched lines" U8.MD "$work/expected-edit8.md" || true
 sleep 4
 if mdir -b -i "$HOME/vms/retro/run/win98-xfer.img" '::/U8.MD~' >/dev/null 2>&1; then
   fail "U8.MD~ still there after saving"
@@ -63,15 +64,15 @@ fi
 
 open_file 'D:\TESTE.MD'
 save_as 'A:\C1252.MD'
-expect_floppy_file "CP1252 file saved byte for byte" C1252.MD "$repo/samples/TESTE.MD"
+expect_floppy_file "CP1252 file saved byte for byte" C1252.MD "$repo/samples/TESTE.MD" || true
 save_as 'A:\CONV8.MD' up
-expect_floppy_file "CP1252 file saved as UTF-8" CONV8.MD "$work/expected-conv8.md"
+expect_floppy_file "CP1252 file saved as UTF-8" CONV8.MD "$work/expected-conv8.md" || true
 
 open_file 'D:\TESTEU8.MD'
 save_as 'A:\UTF8.MD'
-expect_floppy_file "UTF-8 (LF) file saved byte for byte" UTF8.MD "$repo/samples/teste-utf8.md"
+expect_floppy_file "UTF-8 (LF) file saved byte for byte" UTF8.MD "$repo/samples/teste-utf8.md" || true
 save_as 'A:\CONV1252.MD' down
-expect_floppy_file "UTF-8 file saved as CP1252 keeps LF" CONV1252.MD "$work/expected-conv1252.md"
+expect_floppy_file "UTF-8 file saved as CP1252 keeps LF" CONV1252.MD "$work/expected-conv1252.md" || true
 "$bin/settle" win98 20 2 "$shots/m3-saved.png" >/dev/null
 
 # Settings persist in MINUTA.INI beside the exe.

@@ -35,7 +35,7 @@ objects = $(addprefix $(1)/,$(notdir $(2:.c=.$(3))))
 # keeps its upstream code, so it only gets the default level.
 OW_COMMON := -std=c99 -O2 -s $(MD4C_DEFINES) $(INCLUDES)
 OW_STRICT := -Wall -Werror
-OW_VENDOR := -Wlevel=1 -Wno-n=107
+OW_VENDOR := -Wlevel=1 -Wc,-wcd=107
 
 NT_DIR := $(BUILD)/nt
 DOS_DIR := $(BUILD)/dos
@@ -105,9 +105,10 @@ test: $(HOST_DIR)/unit-tests $(HOST_DIR)/md2html
 
 -include $(wildcard $(HOST_DIR)/*.d)
 
-# Watcom has no dependency output; rebuild its objects when any header changes.
-ALL_HEADERS := $(wildcard src/*/*.h vendor/md4c/src/*.h)
-$(NT_DIR)/%.obj $(DOS_DIR)/%.obj: $(ALL_HEADERS)
+# Watcom has no dependency output; rebuild its objects when any header
+# changes. (Explicit targets: a pattern rule without a recipe does nothing.)
+ALL_HEADERS := $(wildcard src/*/*.h vendor/md4c/src/*.h vendor/md4c/md2html/*.h)
+$(sort $(NT_MD4C) $(NT_CORE) $(NT_CLI) $(NT_WIN) $(DOS_MD4C) $(DOS_CORE) $(DOS_CLI)): $(ALL_HEADERS)
 
 $(NT_DIR) $(DOS_DIR) $(HOST_DIR) $(OUT):
 	mkdir -p $@

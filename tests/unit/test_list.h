@@ -5,6 +5,7 @@ TEST(test_encoding_utf8_validity)
 TEST(test_encoding_cp1252_round_trip)
 TEST(test_encoding_cp850)
 TEST(test_encoding_unmappable)
+TEST(test_encoding_offsets)
 
 /* RTF renderer tests (tests/unit/test_rtf.c) */
 #include "test_list_rtf.h"
@@ -26,3 +27,5 @@ TEST(test_document_new_file)
 TEST(test_stats_counts)
 TEST(test_stats_reading_time)
 TEST(test_stats_sentences)
+TEST(test_export_utf8)
+TEST(test_export_cp1252)

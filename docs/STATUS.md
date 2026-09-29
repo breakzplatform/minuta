@@ -84,3 +84,54 @@ Decisions:
 
 Open issues:
 - Cold start inside the process is ~330 ms, mostly loading RICHED20.DLL.
+
+## Milestone 4 — syntax dimming, themes, focus, typewriter: done
+
+- `src/win/style.c`: per-paragraph styling from the core span scanner:
+  Markdown markers in gray, headings and strong in bold, emphasis in italic,
+  code with a background, strikethrough. Only paragraphs touched by an edit
+  and the visible range are restyled, when the message queue is empty, so
+  typing never waits. A small index of fence lines gives the fenced-code
+  state at any paragraph without rereading the text above it.
+- Focus mode (sentence or paragraph, over hard-wrapped Markdown paragraphs),
+  typewriter scrolling (the last paragraph gets half a view of space after
+  it so the end of the document can reach the middle), night theme.
+- `src/win/undo.c`: own undo/redo (word by word), see decisions.
+- `src/win/tom.c`: formatting through RichEdit's Text Object Model.
+- `tests/vm/editor.sh` on win98 (`build/vm-editor.log`):
+  - Acceptance 2: 2,082 words (13.9 KB of Markdown) typed through `bin/type`
+    in ~15 minutes, saved and pulled back: byte-identical, no dropped keys.
+    `m4-typing.png` shows dimmed markers, bold heading, italic and bold
+    spans, code and links.
+  - Acceptance 3: `m4-focus.png` (sentence), `m4-focus-paragraph.png`,
+    `m4-typewriter.png`, `m4-night.png`.
+  - Acceptance 7: a generated 1 MB document (`tests/vm/make-samples.py
+    large`) opens and is styled in 2.4 s; Ctrl+End, Page Up/Down and
+    Ctrl+Home each repaint in at most 0.3 s. `m4-large-top.png`,
+    `m4-large-end.png`.
+
+Decisions and findings (RichEdit 2.0 on Windows 98, via `tests/win/probe*.c`
+and the `Trace=1` log):
+- Formatting changes are undoable in RichEdit, so styling polluted Ctrl+Z.
+  RichEdit's undo is off (`EM_SETUNDOLIMIT 0`); every edit goes through a
+  subclass that records what it replaced.
+- `EM_EXSETSEL` + `EM_SETCHARFORMAT` moves the selection and scrolls; the
+  `EM_LINESCROLL` used to restore the view jumped to the top of a 1 MB
+  document (RichEdit lays out large documents lazily). Styling now uses TOM
+  (`ITextRange::SetFont`/`SetPara` with cached font duplicates) and never
+  touches the selection. `ITextDocument::Freeze` is not implemented in 2.0.
+- Setting a paragraph format on a whole 1 MB document (or streaming into a
+  formatted selection) takes RichEdit ~3.5 s; plain `EM_STREAMIN` takes
+  35 ms. The 1.5 line spacing is therefore applied paragraph by paragraph as
+  they are styled.
+- `EM_POSFROMCHAR` returns 0,0 and `EM_GETSCROLLPOS` does not exist, so
+  repaint bands are estimated from line numbers.
+- QEMU drops input events when too many are queued, so the typing test
+  paces `bin/type` at ~20 characters per second; with back-to-back calls most
+  keys never reached the guest (the first run's failure).
+- Typewriter mode pads only below the last paragraph: RichEdit scrolls by
+  whole lines, and a tall first line made scrolling jump.
+
+Open issues:
+- In a 1 MB document the scrollbar thumb lags behind RichEdit's lazy layout
+  (it can sit at the top while showing the end).

@@ -96,3 +96,20 @@ void test_encoding_unmappable(void)
     CHECK_STR(out, size, "&#65533;");
     free(out);
 }
+
+void test_encoding_offsets(void)
+{
+    /* "a" "ç" "€" "b": 1 + 2 + 3 + 1 bytes in UTF-8 */
+    const char *text = "a\xE7\x80" "b";
+    size_t size;
+    char *utf8 = encoding_to_utf8(text, 4, ENCODING_CP1252, &size);
+
+    CHECK(size == 7);
+    CHECK(cp1252_utf8_offset(text, 0) == 0);
+    CHECK(cp1252_utf8_offset(text, 2) == 3);
+    CHECK(cp1252_utf8_offset(text, 4) == 7);
+    CHECK(utf8_cp1252_offset(utf8, size, 3) == 2);
+    CHECK(utf8_cp1252_offset(utf8, size, 6) == 3);
+    CHECK(utf8_cp1252_offset(utf8, size, 99) == 4);
+    free(utf8);
+}

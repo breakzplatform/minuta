@@ -47,4 +47,9 @@ char *encoding_to_utf8(const char *text, size_t size, enum encoding source, size
 char *encoding_from_utf8(const char *text, size_t size, enum encoding target,
                          enum unmappable policy, size_t *out_size);
 
+/* Offset conversions between CP1252 text and its UTF-8 conversion (as made
+ * by encoding_to_utf8): each CP1252 character is one code point. */
+size_t cp1252_utf8_offset(const char *text, size_t characters);
+size_t utf8_cp1252_offset(const char *utf8, size_t size, size_t byte_offset);
+
 #endif

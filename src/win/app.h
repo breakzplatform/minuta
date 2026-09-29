@@ -23,6 +23,7 @@ struct settings {
     char last_file[MAX_PATH];
     RECT window;         /* normal (restored) position */
     int maximized;
+    int trace;           /* write TRACE.TXT (diagnostics) */
 };
 
 struct theme {
@@ -60,5 +61,7 @@ void app_directory(char *path, size_t size);
 void app_update_title(void);
 void app_theme_update(void);
 void app_error(const char *format, const char *argument);
+/* The text changed: mark the document modified. */
+void app_document_changed(void);
 
 #endif

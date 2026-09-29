@@ -294,3 +294,35 @@ char *encoding_from_utf8(const char *text, size_t size, enum encoding target,
     *out_size = length;
     return out;
 }
+
+size_t cp1252_utf8_offset(const char *text, size_t characters)
+{
+    size_t bytes = 0;
+    size_t i;
+
+    for (i = 0; i < characters; i++) {
+        unsigned char byte = (unsigned char)text[i];
+        unsigned long code_point = codepage_to_unicode(ENCODING_CP1252, byte);
+
+        bytes += code_point < 0x80 ? 1 : code_point < 0x800 ? 2 : 3;
+    }
+    return bytes;
+}
+
+size_t utf8_cp1252_offset(const char *utf8, size_t size, size_t byte_offset)
+{
+    const unsigned char *bytes = (const unsigned char *)utf8;
+    size_t characters = 0;
+    size_t i = 0;
+
+    if (byte_offset > size) {
+        byte_offset = size;
+    }
+    while (i < byte_offset) {
+        unsigned long code_point;
+
+        i += utf8_decode(bytes + i, size - i, &code_point);
+        characters++;
+    }
+    return characters;
+}

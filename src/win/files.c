@@ -7,6 +7,7 @@
 #include "app.h"
 #include "editor.h"
 #include "files.h"
+#include "trace.h"
 
 #define FILTER_UTF8 1
 #define FILTER_CP1252 2
@@ -156,14 +157,18 @@ int files_open_path(const char *path)
 {
     size_t size;
     size_t text_size;
-    char *bytes = files_read(path, &size);
+    char *bytes;
     char *text;
 
+    trace("open %s", path);
+    bytes = files_read(path, &size);
+    trace("read %lu bytes", (unsigned long)size);
     if (bytes == NULL) {
         app_error("Can't open %s.", path);
         return 0;
     }
     text = document_decode(bytes, size, &app.format, &text_size);
+    trace("decoded");
     free(bytes);
     if (text == NULL) {
         app_error("Not enough memory to open %s.", path);

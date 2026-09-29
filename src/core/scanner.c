@@ -131,19 +131,38 @@ int scan_is_fence_line(const char *text, size_t size)
     return parse_fence(text, size, &c, &length, &after);
 }
 
-void scan_state_advance(struct scan_state *state, const char *text, size_t size)
+int scan_fence_info(const char *text, size_t size, struct fence_info *info)
 {
-    char c;
-    unsigned length;
     size_t after;
 
+    if (!parse_fence(text, size, &info->fence_char, &info->length, &after)) {
+        return 0;
+    }
+    while (after < size && is_space(text[after])) {
+        after++;
+    }
+    info->bare = after == size;
+    return 1;
+}
+
+void scan_state_apply_fence(struct scan_state *state, const struct fence_info *info)
+{
     if (state->fence_length > 0) {
-        if (is_closing_fence(text, size, state)) {
+        if (info->bare && info->fence_char == state->fence_char && info->length >= state->fence_length) {
             scan_state_init(state);
         }
-    } else if (parse_fence(text, size, &c, &length, &after)) {
-        state->fence_char = c;
-        state->fence_length = length;
+    } else {
+        state->fence_char = info->fence_char;
+        state->fence_length = info->length;
+    }
+}
+
+void scan_state_advance(struct scan_state *state, const char *text, size_t size)
+{
+    struct fence_info info;
+
+    if (scan_fence_info(text, size, &info)) {
+        scan_state_apply_fence(state, &info);
     }
 }
 

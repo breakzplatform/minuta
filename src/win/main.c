@@ -9,6 +9,9 @@
 #include "editor.h"
 #include "files.h"
 #include "resource.h"
+#include "style.h"
+#include "trace.h"
+#include "undo.h"
 
 #define WINDOW_CLASS "MinutaWindow"
 #define AUTOSAVE_TIMER 1
@@ -38,6 +41,14 @@ void app_update_title(void)
      * glyphs for CP1252's bullet and em dash and draws them as bars. */
     wsprintf(title, "%s%s - " APP_NAME, app.modified ? "* " : "", name);
     SetWindowText(app.window, title);
+}
+
+void app_document_changed(void)
+{
+    if (!app.modified) {
+        app.modified = 1;
+        app_update_title();
+    }
 }
 
 void app_theme_update(void)
@@ -75,6 +86,14 @@ static void apply_view_settings(void)
     app_theme_update();
     editor_apply_settings();
     update_menu_checks();
+    style_settings_changed();
+}
+
+static void toggle(int *setting)
+{
+    *setting = !*setting;
+    update_menu_checks();
+    style_settings_changed();
 }
 
 static void change_font_size(int delta)
@@ -95,6 +114,7 @@ static void change_column_width(int delta)
         app.settings.column_width = width;
         editor_layout();
         InvalidateRect(app.editor, NULL, TRUE);
+        style_settings_changed();
     }
 }
 
@@ -138,8 +158,8 @@ static void on_command(int id)
     case IDM_FILE_SAVE:         files_save(); break;
     case IDM_FILE_SAVE_AS:      files_save_as(); break;
     case IDM_FILE_EXIT:         PostMessage(app.window, WM_CLOSE, 0, 0); break;
-    case IDM_EDIT_UNDO:         SendMessage(app.editor, EM_UNDO, 0, 0); break;
-    case IDM_EDIT_REDO:         SendMessage(app.editor, EM_REDO, 0, 0); break;
+    case IDM_EDIT_UNDO:         undo_undo(); break;
+    case IDM_EDIT_REDO:         undo_redo(); break;
     case IDM_EDIT_CUT:          SendMessage(app.editor, WM_CUT, 0, 0); break;
     case IDM_EDIT_COPY:         SendMessage(app.editor, WM_COPY, 0, 0); break;
     case IDM_EDIT_PASTE:        SendMessage(app.editor, EM_PASTESPECIAL, CF_TEXT, 0); break;
@@ -148,18 +168,9 @@ static void on_command(int id)
         app.settings.night = !app.settings.night;
         apply_view_settings();
         break;
-    case IDM_VIEW_FOCUS:
-        app.settings.focus = !app.settings.focus;
-        update_menu_checks();
-        break;
-    case IDM_VIEW_FOCUS_SCOPE:
-        app.settings.focus_paragraph = !app.settings.focus_paragraph;
-        update_menu_checks();
-        break;
-    case IDM_VIEW_TYPEWRITER:
-        app.settings.typewriter = !app.settings.typewriter;
-        update_menu_checks();
-        break;
+    case IDM_VIEW_FOCUS:        toggle(&app.settings.focus); break;
+    case IDM_VIEW_FOCUS_SCOPE:  toggle(&app.settings.focus_paragraph); break;
+    case IDM_VIEW_TYPEWRITER:   toggle(&app.settings.typewriter); break;
     case IDM_VIEW_FONT:            choose_font(); break;
     case IDM_VIEW_FONT_LARGER:     change_font_size(1); break;
     case IDM_VIEW_FONT_SMALLER:    change_font_size(-1); break;
@@ -188,6 +199,13 @@ static LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM wpara
         if (app.editor != NULL) {
             MoveWindow(app.editor, 0, 0, LOWORD(lparam), HIWORD(lparam), TRUE);
             editor_layout();
+            style_settings_changed();
+        }
+        return 0;
+    case WM_NOTIFY:
+        if (((NMHDR *)lparam)->hwndFrom == app.editor && ((NMHDR *)lparam)->code == EN_SELCHANGE
+            && !style_busy) {
+            style_view_changed();
         }
         return 0;
     case WM_SETFOCUS:
@@ -197,10 +215,10 @@ static LRESULT CALLBACK window_procedure(HWND window, UINT message, WPARAM wpara
         return 0;
     case WM_COMMAND:
         if ((HWND)lparam == app.editor && app.editor != NULL) {
-            if (HIWORD(wparam) == EN_CHANGE && !app.modified
-                && SendMessage(app.editor, EM_GETMODIFY, 0, 0)) {
-                app.modified = 1;
-                app_update_title();
+            if (HIWORD(wparam) == EN_CHANGE) {
+                editor_notify_change();
+            } else if (HIWORD(wparam) == EN_VSCROLL && !style_busy) {
+                style_view_changed();
             }
             return 0;
         }
@@ -267,6 +285,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     app.instance = instance;
     document_format_init(&app.format);
     settings_load(&app.settings);
+    trace_open(app.settings.trace);
     app_theme_update();
 
     memset(&window_class, 0, sizeof(window_class));
@@ -322,10 +341,18 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
     UpdateWindow(app.window);
     SetTimer(app.window, AUTOSAVE_TIMER, AUTOSAVE_INTERVAL_MS, NULL);
 
-    while (GetMessage(&message, NULL, 0, 0) > 0) {
-        if (!TranslateAccelerator(app.window, app.accelerators, &message)) {
-            TranslateMessage(&message);
-            DispatchMessage(&message);
+    /* Styling runs only when no input is waiting, so typing never lags. */
+    for (;;) {
+        if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
+            if (message.message == WM_QUIT) {
+                break;
+            }
+            if (!TranslateAccelerator(app.window, app.accelerators, &message)) {
+                TranslateMessage(&message);
+                DispatchMessage(&message);
+            }
+        } else if (!style_idle()) {
+            WaitMessage();
         }
     }
     document_format_free(&app.format);

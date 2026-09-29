@@ -68,6 +68,7 @@ void settings_load(struct settings *settings)
     settings->window.right = settings->window.left + read_int(ini, "WindowWidth", 640);
     settings->window.bottom = settings->window.top + read_int(ini, "WindowHeight", 520);
     settings->maximized = read_int(ini, "Maximized", 0) != 0;
+    settings->trace = read_int(ini, "Trace", 0) != 0;
 }
 
 void settings_save(const struct settings *settings)
