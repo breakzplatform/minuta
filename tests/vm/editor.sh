@@ -100,6 +100,29 @@ else fail "scrolling the 1 MB file stalled ${worst} s"; fi
 sleep 3
 "$bin/shot" win98 "$shots/m4-large-end.png" >/dev/null
 
+# The scroll bar thumb follows the view in the 1 MB file: bottom at the end,
+# top at the start, about halfway at chapter 500 of ~1,000. At the end it is
+# the minimum 8 pixels flush with the down arrow, easy to miss by eye.
+expect_thumb() {  # LABEL LOW HIGH
+  local at
+  at=$("$repo/tests/vm/screen.py" thumb win98 740 64 545) || true
+  if [[ $at != none ]] && awk "BEGIN { exit !($at >= $2 && $at <= $3) }"; then pass "$1: thumb at $at"
+  else fail "$1: thumb at $at, expected $2..$3"; fi
+}
+expect_thumb "scroll bar at the end of the 1 MB file" 0.97 1
+"$bin/key" win98 ctrl-home
+"$repo/tests/vm/screen.py" last-change win98 30 2 >/dev/null
+expect_thumb "scroll bar at the start of the 1 MB file" 0 0.03
+# Find searches down from the caret, so this starts at the top.
+"$bin/key" win98 ctrl-f
+sleep 3
+"$bin/type" win98 'tulo 500'
+"$bin/key" win98 ret
+sleep 3
+"$bin/key" win98 esc
+"$repo/tests/vm/screen.py" last-change win98 30 2 >/dev/null
+expect_thumb "scroll bar in the middle of the 1 MB file" 0.4 0.6
+
 "$bin/stop" win98
 ((failures == 0)) || { echo "$failures check(s) failed"; exit 1; }
 echo "editor acceptance passed"
