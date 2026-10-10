@@ -21,7 +21,7 @@ sleep 6
 # Acceptance 1: time from Enter in Start > Run to the last screen change
 # (window painted with the document). Launching from the MS-DOS Prompt
 # instead adds ~1.7 s of console overhead (Notepad pays it too).
-"$bin/key" win98 meta_l-r
+open_run
 sleep 3
 "$bin/type" win98 'C:\MINUTA\MINUTA.EXE D:\TESTE.MD'
 sleep 2

@@ -7,7 +7,7 @@ repo=$(cd "$(dirname "$0")/../.." && pwd)
 printf '@echo off\r\nif not exist C:\\MINUTA\\NUL mkdir C:\\MINUTA\r\ncopy D:\\MINUTA.EXE C:\\MINUTA > NUL\r\ncopy D:\\*.MD C:\\MINUTA > NUL\r\nif exist C:\\MINUTA\\MINUTA.INI del C:\\MINUTA\\MINUTA.INI\r\ncls\r\n' > "$work/SETUP.BAT"
 settle() { "$repo/tests/vm/screen.py" last-change win98 30 3 2000 >/dev/null; }
 launch() {
-  "$bin/key" win98 meta_l-r
+  open_run
   sleep 5
   "$bin/typeln" win98 "$1"
   settle

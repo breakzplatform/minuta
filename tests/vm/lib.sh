@@ -51,6 +51,15 @@ compare_file() {  # LABEL ACTUAL EXPECTED
   else fail "$1"; cmp "$2" "$3" || true; fi
 }
 
+# Opens Start > Run. Not Win+R: since the guest layout became United
+# States-International, the Windows key sent by sendkey sometimes stays down,
+# and the path typed next fires Win+E, Win+F and so on.
+open_run() {
+  "$bin/key" win98 ctrl-esc
+  sleep 2
+  "$bin/key" win98 r
+}
+
 # Opens a file through File > Open.
 open_file() {  # GUEST_PATH
   "$bin/key" win98 ctrl-o

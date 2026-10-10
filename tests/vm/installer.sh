@@ -6,12 +6,13 @@
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/../.." && pwd)
 . "$repo/tests/vm/lib.sh"
+version=$(sed -n 's/^VERSION := //p' "$repo/Makefile")
 out=$work/installer
 mkdir -p "$out"
-cp "$repo/build/dist/minuta-0.1.1-setup.exe" "$work/SETUP.EXE"
+cp "$repo/build/dist/minuta-$version-setup.exe" "$work/SETUP.EXE"
 printf '@echo off\r\nmkdir C:\\DOCS\r\ncopy D:\\POEMA.MD C:\\DOCS > NUL\r\ncls\r\n' > "$work/DOCS.BAT"
 printf 'transfer\r\n' > "$work/XFER.TXT"
-run() { "$bin/key" win98 meta_l-r; sleep 5; "$bin/typeln" win98 "$1"; }
+run() { open_run; sleep 5; "$bin/typeln" win98 "$1"; }
 settle() { "$repo/tests/vm/screen.py" last-change win98 30 3 2000 >/dev/null; }
 open_poem_from_explorer() {
   run 'explorer C:\DOCS'

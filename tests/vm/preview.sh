@@ -16,7 +16,7 @@ printf 'transfer\r\n' > "$work/XFER.TXT"
 sleep 2
 "$bin/typeln" win98 'D:\SETUP'
 sleep 6
-"$bin/key" win98 meta_l-r
+open_run
 sleep 5
 "$bin/typeln" win98 'C:\MINUTA\MINUTA.EXE D:\SMOKE.MD'
 "$repo/tests/vm/screen.py" last-change win98 30 3 >/dev/null

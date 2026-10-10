@@ -27,7 +27,7 @@ wait_floppy_file DONE.TXT 120 || fail "UNPACK.BAT did not finish"
 expect_floppy_file "MD2HTMLD.EXE from the DOS ZIP converts the CP850 sample" P850.HTM "$work/poema-expected.html" || true
 expect_floppy_file "MD2HTMLW.EXE from the Win98 ZIP converts the CP1252 sample" P1252.HTM "$work/poema-expected.html" || true
 expect_floppy_file "README.TXT in the ZIP is CP1252 with CRLF" README.TXT "$work/readme-expected.txt" || true
-"$bin/key" win98 meta_l-r
+open_run
 sleep 5
 "$bin/typeln" win98 'C:\MZIP\MINUTA.EXE D:\POEMA.MD'
 "$repo/tests/vm/screen.py" last-change win98 30 3 2000 >/dev/null
