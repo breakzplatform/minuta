@@ -33,7 +33,7 @@ APP_OBJ := $(addprefix $(OBJ)/,$(APP_SRC:.cpp=.o))
 APPS_DIR = $(shell finddir B_USER_NONPACKAGED_DIRECTORY)/apps
 BIN_DIR = $(shell finddir B_USER_NONPACKAGED_BIN_DIRECTORY)
 
-VERSION := 0.1.1-1
+VERSION := 0.1.2-1
 ARCH = $(shell getarch)
 PACKAGE = $(OBJ)/minuta-$(VERSION)-$(ARCH).hpkg
 STAGE := $(OBJ)/package

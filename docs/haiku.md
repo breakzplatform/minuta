@@ -18,12 +18,12 @@ It runs on Haiku R1/beta6 and later, 64-bit (x86_64).
 
 ## Installing
 
-Download `minuta-0.1.1-1-x86_64.hpkg` from the
+Download `minuta-0.1.2-1-x86_64.hpkg` from the
 [releases page](https://github.com/breakzplatform/minuta/releases), then do
 one of these:
 
 - Double-click the file. HaikuDepot opens it; click **Install minuta**.
-- In Terminal: `pkgman install minuta-0.1.1-1-x86_64.hpkg`.
+- In Terminal: `pkgman install minuta-0.1.2-1-x86_64.hpkg`.
 - Copy it into `~/config/packages` to install it for your user only. Haiku
   picks it up on its own within a few seconds.
 
@@ -43,7 +43,7 @@ default (gcc, make and the system headers). From the top of the repository:
     make -C src/haiku            # builds src/haiku/objects/Minuta
     make -C src/haiku install    # copies it to ~/config/non-packaged/apps
                                  # and adds a `minuta` command
-    make -C src/haiku package    # builds objects/minuta-0.1.1-1-x86_64.hpkg
+    make -C src/haiku package    # builds objects/minuta-0.1.2-1-x86_64.hpkg
 
 The build uses plain `g++` and `gcc` with `-Wall -Wextra` and should finish
 without warnings.

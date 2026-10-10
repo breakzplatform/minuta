@@ -43,15 +43,15 @@ Get the files from the
 
 **Windows 98**
 
-- `minuta-0.1.1-win98.zip` has `MINUTA.EXE`, `MD2HTMLW.EXE`, `README.TXT`
+- `minuta-0.1.2-win98.zip` has `MINUTA.EXE`, `MD2HTMLW.EXE`, `README.TXT`
   and `LICENSE.TXT`. Unzip it into any folder and run `MINUTA.EXE`. There is
   nothing to install. Settings are saved in `MINUTA.INI` in the same folder.
-- `minuta-0.1.1-setup.exe` installs the same files in Program Files, adds a
+- `minuta-0.1.2-setup.exe` installs the same files in Program Files, adds a
   Start menu entry and makes Minuta the program for `.md` and `.markdown`
   files, so double-clicking one opens it. If another program had `.md`
   before, the uninstaller gives it back; otherwise it removes the
   association.
-- `minuta-0.1.1-dos.zip` has `MD2HTMLD.EXE`, which runs on plain DOS (the
+- `minuta-0.1.2-dos.zip` has `MD2HTMLD.EXE`, which runs on plain DOS (the
   DOS/32A extender is built in).
 
 Minuta runs on Windows 98 SE and should also run on Windows 98 and ME, which
@@ -59,8 +59,8 @@ I have not tested. It needs `RICHED20.DLL`, which Windows 98 SE includes.
 
 **Haiku**
 
-`minuta-0.1.1-1-x86_64.hpkg` is a Haiku package. Double-click it and click
-Install in HaikuDepot, or run `pkgman install minuta-0.1.1-1-x86_64.hpkg`.
+`minuta-0.1.2-1-x86_64.hpkg` is a Haiku package. Double-click it and click
+Install in HaikuDepot, or run `pkgman install minuta-0.1.2-1-x86_64.hpkg`.
 Minuta then appears in Deskbar under Applications, and a `minuta` command
 opens files from Terminal. It runs on Haiku R1/beta6 and later, 64-bit.
 [docs/haiku.md](docs/haiku.md) has more on installing and using it.
@@ -148,7 +148,7 @@ location.
 
     make -C src/haiku            # src/haiku/objects/Minuta
     make -C src/haiku install    # into ~/config/non-packaged, with a `minuta` command
-    make -C src/haiku package    # src/haiku/objects/minuta-0.1.1-1-x86_64.hpkg
+    make -C src/haiku package    # src/haiku/objects/minuta-0.1.2-1-x86_64.hpkg
 
 The code in `src/core` is plain C and is tested on the host with
 `make test`. `src/win` is the Windows program, `src/haiku` the Haiku one and
