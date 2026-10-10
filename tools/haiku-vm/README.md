@@ -29,7 +29,7 @@ at a time (the build Mac has 8 GB).
 | `build [make args]` | `push`, then `make -C src/haiku` in the guest. |
 | `shot [--after S] [out.png]` | Screenshot (QEMU `screendump`). |
 | `settle [TIMEOUT] [QUIET] [out.png]` | Wait for the screen to stop changing, then screenshot. |
-| `type TEXT` / `typeln TEXT` / `key KEY...` | Keyboard through `sendkey` (US layout). |
+| `type TEXT` / `typeln TEXT` / `key KEY...` | Keyboard through `sendkey`; `type` writes accented letters with the dead keys of the guest keymap. |
 | `click X Y [left\|right\|middle] [--double] [--move]` | Pointer through QMP `input-send-event`. |
 | `mon CMD...` | Raw HMP monitor commands. |
 | `snapshot TAG` / `reset [TAG]` | Save a snapshot (full state if running, disk only if stopped) / revert the disk. |
@@ -60,7 +60,15 @@ at a time (the build Mac has 8 GB).
 6. The Installer skips the SSH host keys, so in a Terminal on the installed
    system: `ssh-keygen -A`, reboot.
 7. `ssh 'pkgman install -y rsync'`, `stop --guest`, `snapshot clean`.
-8. Boot, disable the screen saver (it blanks the screen after 10 minutes
+8. Keymap: `push-file tools/haiku-vm/us-dead-keys.keymap /tmp`, then
+   `ssh 'keymap -s < /tmp/us-dead-keys.keymap'`. It is the US layout with
+   the dead keys of US-International on Windows (and of Brazilian Pro on the
+   Mac): ' ` ^ ~ " compose accents, ' then c gives ç, and a dead key followed
+   by a space types the plain character. noVNC and `sendkey` send physical
+   keys, so accents have to come from the guest's layout; with plain US,
+   typing ' then e gives 'e. Haiku's own US-International keymap only has
+   dead keys under Option.
+9. Boot, disable the screen saver (it blanks the screen after 10 minutes
    and spoils screenshots): write `~/config/settings/ScreenSaver_settings`
    as a flattened BMessage with `timeflags = 0` and `lockenable = false`,
    reboot, wait for the desktop, `snapshot ready`.

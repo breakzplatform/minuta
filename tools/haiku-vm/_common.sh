@@ -12,6 +12,7 @@ QMP="$RUN/$VM.qmp"
 PIDFILE="$RUN/$VM.pid"
 VNC_DISPLAY=4            # vnc://127.0.0.1:5904
 SSH_PORT=2222
+KEYMAP=us-intl           # guest keymap: us-dead-keys.keymap (us: Haiku's plain US)
 SSH_KEY="$ROOT/ssh/id_ed25519"
 SSH_COMMON=(-i "$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
             -o LogLevel=ERROR -o ConnectTimeout=10 -o ServerAliveInterval=15)
