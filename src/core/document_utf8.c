@@ -6,7 +6,9 @@
 #include "buffer.h"
 #include "encoding.h"
 
-static enum line_ending dominant_line_ending(const char *bytes, size_t size)
+/* A file without line breaks (empty, or a single line) keeps fallback, the
+ * editor's own default, so that the lines typed into it get that ending. */
+static enum line_ending dominant_line_ending(const char *bytes, size_t size, enum line_ending fallback)
 {
     size_t counts[3] = { 0, 0, 0 };
     size_t i;
@@ -28,6 +30,9 @@ static enum line_ending dominant_line_ending(const char *bytes, size_t size)
     }
     if (counts[LINE_ENDING_CR] > counts[LINE_ENDING_CRLF]) {
         return LINE_ENDING_CR;
+    }
+    if (counts[LINE_ENDING_CRLF] == 0) {
+        return fallback;
     }
     return LINE_ENDING_CRLF;
 }
@@ -56,11 +61,12 @@ char *document_decode_utf8(const char *bytes, size_t size, struct document_forma
 {
     struct buffer text;
     size_t bom = utf8_bom_length(bytes, size);
+    enum line_ending fallback = format->line_ending;
 
     document_format_free(format);
     format->bom = bom > 0;
     format->encoding = (bom > 0 || utf8_is_valid(bytes, size)) ? ENCODING_UTF8 : ENCODING_CP1252;
-    format->line_ending = dominant_line_ending(bytes, size);
+    format->line_ending = dominant_line_ending(bytes, size, fallback);
 
     buffer_init(&text);
     if (format->encoding == ENCODING_UTF8) {

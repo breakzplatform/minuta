@@ -12,6 +12,7 @@
 
 /* Decodes file contents: UTF-8 (with a BOM, or valid UTF-8) is copied,
  * anything else is read as CP1252. Every "\r\n", "\r" or "\n" becomes "\n".
+ * A file with no line break keeps the line ending already in format.
  * Returns a malloc'ed NUL-terminated buffer, or NULL when out of memory. */
 char *document_decode_utf8(const char *bytes, size_t size, struct document_format *format,
                            size_t *text_size);

@@ -81,6 +81,33 @@ void test_document_utf8_bom_and_endings(void)
     document_format_free(&format);
 }
 
+void test_document_utf8_no_line_break(void)
+{
+    struct document_format format;
+    char *text;
+    char *saved;
+    size_t size;
+
+    /* An empty or one-line file keeps the editor's line ending (LF on
+     * Haiku), so typed lines don't come out as CRLF. */
+    document_format_init(&format);
+    format.line_ending = LINE_ENDING_LF;
+    text = document_decode_utf8(BYTES(""), &format, &size);
+    CHECK(format.line_ending == LINE_ENDING_LF);
+    free(text);
+    saved = document_encode_utf8(BYTES("a\xC3\xA7\xC3\xA3o\nb\n"), &format, &size);
+    CHECK_STR(saved, size, "a\xC3\xA7\xC3\xA3o\nb\n");
+    free(saved);
+    text = document_decode_utf8(BYTES("# T\xC3\xADtulo"), &format, &size);
+    CHECK(format.line_ending == LINE_ENDING_LF);
+    free(text);
+    /* Any line break in the file still decides. */
+    text = document_decode_utf8(BYTES("a\r\nb"), &format, &size);
+    CHECK(format.line_ending == LINE_ENDING_CRLF);
+    free(text);
+    document_format_free(&format);
+}
+
 void test_document_utf8_new_file(void)
 {
     struct document_format format;

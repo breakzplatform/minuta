@@ -3,6 +3,7 @@
 TEST(test_document_utf8_text)
 TEST(test_document_utf8_cp1252)
 TEST(test_document_utf8_bom_and_endings)
+TEST(test_document_utf8_no_line_break)
 TEST(test_document_utf8_new_file)
 TEST(test_stats_utf8_counts)
 TEST(test_stats_utf8_reading_time)
