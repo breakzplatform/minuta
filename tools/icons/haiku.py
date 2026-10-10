@@ -10,7 +10,6 @@ renders in build/icons/haiku. Run from the repository root:
   DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run --with shapely \
     --with cairosvg --with pillow python tools/icons/haiku.py
 """
-import os
 import re
 import struct
 import sys
@@ -196,35 +195,7 @@ def app_shapes():
             + fit(m_shapes(base=(23.0, 56.0), scale=1.3, depth=(4.4, -4.4), prefix="m16"), SMALL))
 
 
-# ".md" in a small pixel font, written on the sheet like the text lines.
-LABEL = [
-    "...........#",
-    "...........#",
-    "..####...###",
-    "..#.#.#.#..#",
-    "#.#.#.#..###",
-]
-
-
-def label_shape(x0, y0, cell_x, cell_y):
-    cells = [page_quad(x0 + dx * cell_x, y0 + dy * cell_y, x0 + (dx + 1) * cell_x, y0 + (dy + 1) * cell_y)
-             for dy, row in enumerate(LABEL) for dx, c in enumerate(row) if c == "#"]
-    return unary_union(cells).buffer(0.05, join_style=2)
-
-
-def doc_shapes_label():
-    """A sheet with ".md" written on it and the M in the corner."""
-    _, sheet = sheet_shapes([(0.16, 0.62), (0.28, 0.84), (0.40, 0.75)])
-    plain_sheet = [s for s in sheet if not s[0].startswith("text-")]
-    label = [("label", label_shape(0.13, 0.56, 0.045, 0.055), solid("#3d3420"))]
-    return (fit(sheet + label + m_shapes(base=(41.5, 50.5), scale=0.52, depth=(2.2, -2.2), prefix="badge"), BIG)
-            # At 16px (Deskbar and Tracker menus, list views) a bigger M, or it
-            # shrinks to a few pixels at the sheet's corner and looks cut off.
-            + fit(plain_sheet + m_shapes(base=(27.0, 60.0), scale=1.25, depth=(4.7, -4.7), prefix="badge16"),
-                  SMALL))
-
-
-def doc_shapes_center():
+def doc_shapes():
     """A sheet with the M standing in the middle."""
     _, sheet = sheet_shapes([(0.16, 0.62), (0.28, 0.84)])
     plain_sheet = [s for s in sheet if not s[0].startswith("text-")]
@@ -235,10 +206,6 @@ def doc_shapes_center():
 
     return (fit(sheet + centered(0.62, (2.6, -2.6), "badge"), BIG)
             + fit(plain_sheet + centered(0.85, (3.2, -3.2), "badge16"), SMALL))
-
-
-# MINUTA_DOC_ICON=center picks the other document design; "label" is the default.
-doc_shapes = doc_shapes_center if os.environ.get("MINUTA_DOC_ICON") == "center" else doc_shapes_label
 
 
 # ---------------------------------------------------------------- output
@@ -494,11 +461,6 @@ def main():
                      'resource(0, "BEOS:M:text/markdown") #\'MICN\' array {', hexlines(mini), "};", ""]
         print(name, "hvif bytes:", len(data), "shapes:", len(shapes))
     RDEF.write_text("\n".join(rdef))
-    for name, maker in (("doc-label", doc_shapes_label), ("doc-center", doc_shapes_center)):
-        data = hvif(maker())
-        for size in (16, 32, 64, 128):
-            cairosvg.svg2png(bytestring=hvif_to_svg(data, size).encode(), output_width=size,
-                             output_height=size, write_to=str(PNG / f"{name}-{size}.png"))
 
 
 if __name__ == "__main__":

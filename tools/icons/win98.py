@@ -4,7 +4,6 @@ Writes res/MINUTA.ICO (app), res/MINUTADOC.ICO (.md documents) and
 res/MINUTAUN.ICO (uninstaller), plus PNG copies in build/icons/win98.
 Run from the repository root: uv run --with pillow python tools/icons/win98.py
 """
-import os
 import struct
 import sys
 from pathlib import Path
@@ -43,17 +42,6 @@ VGA16 = [
 # for the app and the uninstaller, smaller on documents.
 APP_M = {16: (12, 11), 32: (26, 22), 48: (38, 34)}
 CENTER_M = {16: (8, 7), 32: (14, 12), 48: (20, 18)}
-CORNER_M = {16: (6, 5), 32: (10, 9), 48: (14, 12)}
-
-# ".md" in a small pixel font, as modern systems label document icons.
-LABEL = [
-    "...........#",
-    "...........#",
-    "..####...###",
-    "..#.#.#.#..#",
-    "#.#.#.#..###",
-]
-
 
 def blank(size):
     return [[None] * size for _ in range(size)]
@@ -186,16 +174,7 @@ def uninstall_icon(size):
     return g
 
 
-def label(grid, x, y, scale):
-    for dy, row in enumerate(LABEL):
-        for dx, c in enumerate(row):
-            if c == "#":
-                for sy in range(scale):
-                    for sx in range(scale):
-                        grid[y + dy * scale + sy][x + dx * scale + sx] = "K"
-
-
-def doc_icon_center(size):
+def doc_icon(size):
     """A sheet with the M in the middle."""
     g = blank(size)
     if size == 48:
@@ -210,31 +189,6 @@ def doc_icon_center(size):
     m = letter(CENTER_M[size])
     paste(g, m, x0 + (x1 - x0 + 1 - len(m[0])) // 2, y0)
     return g
-
-
-def doc_icon_label(size):
-    """A sheet with ".md" written on it and the M in the corner."""
-    g = blank(size)
-    if size == 48:
-        draw_sheet(g, 6, 1, 39, 46, 10, [(9 + 4 * i, 11, e, 2) for i, e in enumerate([26, 22, 30])])
-        label(g, 10, 24, 2)
-        m = letter(CORNER_M[48])
-        paste(g, m, 48 - len(m[0]), 48 - len(m))
-    elif size == 32:
-        draw_sheet(g, 4, 1, 26, 30, 7, [(6 + 3 * i, 7, e, 1) for i, e in enumerate([18, 15, 21])])
-        label(g, 7, 15, 1)
-        m = letter(CORNER_M[32])
-        paste(g, m, 32 - len(m[0]), 32 - len(m))
-    else:
-        draw_sheet(g, 1, 0, 14, 15, 3, [])
-        label(g, 2, 4, 1)
-        m = letter(CORNER_M[16])
-        paste(g, m, 16 - len(m[0]), 16 - len(m))
-    return g
-
-
-# MINUTA_DOC_ICON=center picks the other document design; "label" is the default.
-doc_icon = doc_icon_center if os.environ.get("MINUTA_DOC_ICON") == "center" else doc_icon_label
 
 
 def to_image(grid, depth):
@@ -322,8 +276,3 @@ if __name__ == "__main__":
     build("MINUTA", app_icon)
     build("MINUTADOC", doc_icon)
     build("MINUTAUN", uninstall_icon)
-    # Both document designs, for comparison only (not written to res/).
-    for name, maker in (("doc-label", doc_icon_label), ("doc-center", doc_icon_center)):
-        for s in (16, 32, 48):
-            for depth in (4, 8):
-                to_image(maker(s), depth).save(PNG / f"{name}-{s}-{depth}bit.png")
