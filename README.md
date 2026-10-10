@@ -157,7 +157,9 @@ FreeDOS and MS-DOS 6.22 virtual machines, and `tools/haiku-vm` and
 `tests/haiku` do the same for a Haiku virtual machine; they were used to
 test the programs and take these screenshots. The icons are drawn by
 `tools/icons/win98.py` (pixel grids for `res/*.ICO`) and
-`tools/icons/haiku.py` (vector icons for `src/haiku/Icons.rdef`). The
+`tools/icons/haiku.py` (vector icons for `src/haiku/Icons.rdef`), both
+from the M in `tools/icons/glyph.py`; `MINUTA_DOC_ICON=center` draws
+documents with the M in the middle instead of the ".md" label. The
 Markdown parser is md4c 0.6.0, in `vendor/md4c`.
 
 ## Samples

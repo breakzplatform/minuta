@@ -2,3 +2,4 @@ build/
 *.o
 *.err
 src/haiku/objects/
+__pycache__/

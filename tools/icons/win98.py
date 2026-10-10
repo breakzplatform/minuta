@@ -4,9 +4,14 @@ Writes res/MINUTA.ICO (app), res/MINUTADOC.ICO (.md documents) and
 res/MINUTAUN.ICO (uninstaller), plus PNG copies in build/icons/win98.
 Run from the repository root: uv run --with pillow python tools/icons/win98.py
 """
+import os
 import struct
+import sys
 from pathlib import Path
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from glyph import m_mask  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "res"
@@ -34,81 +39,20 @@ VGA16 = [
     (0, 0, 255), (255, 0, 255), (0, 255, 255), (255, 255, 255),
 ]
 
-# Solid letter masks (serifs symmetric on both sides, or none) ('#'), one per size, drawn by hand.
-M_MASKS = {
-    "xs": [
-        "##...##",
-        "###.###",
-        "##.#.##",
-        "##...##",
-        "##...##",
-    ],
-    # The app icon at 16x16 is the letter alone, so it reads apart from the
-    # document icon (a sheet with a small M) in Explorer lists and menus.
-    "app16": [
-        "###......###",
-        "####....####",
-        "#####..#####",
-        "###.####.###",
-        "###..##..###",
-        "###......###",
-        "###......###",
-        "###......###",
-        "###......###",
-        "###......###",
-        "###......###",
-    ],
-    "s": [
-        "###...###",
-        "####.####",
-        "##.###.##",
-        "##..#..##",
-        "##.....##",
-        "##.....##",
-        "##.....##",
-    ],
-    "m": [
-        ".#####......#####.",
-        ".#####......#####.",
-        ".######....######.",
-        ".######....######.",
-        ".###.###..###.###.",
-        ".###.###..###.###.",
-        ".###..######..###.",
-        ".###...####...###.",
-        ".###....##....###.",
-        ".###..........###.",
-        ".###..........###.",
-        ".###..........###.",
-        ".###..........###.",
-        "#####........#####",
-        "#####........#####",
-    ],
-    "l": [
-        ".########........########.",
-        ".########........########.",
-        ".########........########.",
-        ".#########......#########.",
-        ".#########......#########.",
-        ".##########....##########.",
-        ".####.#####....#####.####.",
-        ".####..#####..#####..####.",
-        ".####..#####..#####..####.",
-        ".####...##########...####.",
-        ".####...##########...####.",
-        ".####....########....####.",
-        ".####.....######.....####.",
-        ".####......####......####.",
-        ".####.......##.......####.",
-        ".####................####.",
-        ".####................####.",
-        ".####................####.",
-        ".####................####.",
-        ".####................####.",
-        "######..............######",
-        "######..............######",
-    ],
-}
+# The same M (glyph.py, also used by the Haiku icons) at every size: alone
+# for the app and the uninstaller, smaller on documents.
+APP_M = {16: (12, 11), 32: (26, 22), 48: (38, 34)}
+CENTER_M = {16: (8, 7), 32: (14, 12), 48: (20, 18)}
+CORNER_M = {16: (6, 5), 32: (10, 9), 48: (14, 12)}
+
+# ".md" in a small pixel font, as modern systems label document icons.
+LABEL = [
+    "...........#",
+    "...........#",
+    "..####...###",
+    "..#.#.#.#..#",
+    "#.#.#.#..###",
+]
 
 
 def blank(size):
@@ -178,18 +122,14 @@ def paste(grid, layer, ox, oy):
                 grid[oy + y][ox + x] = key
 
 
+def letter(size_wh):
+    return shade_letter(m_mask(*size_wh))
+
+
 def app_icon(size):
     g = blank(size)
-    if size == 48:
-        lines = [(7 + 4 * i, 9, e, 2) for i, e in enumerate([29, 26, 33, 30, 17, 17, 17, 14])]
-        draw_sheet(g, 4, 0, 41, 43, 10, lines)
-        paste(g, shade_letter(M_MASKS["l"]), 20, 22)
-    elif size == 32:
-        lines = [(5 + 3 * i, 6, e, 1) for i, e in enumerate([20, 16, 21, 12, 11, 11, 11])]
-        draw_sheet(g, 3, 0, 26, 27, 7, lines)
-        paste(g, shade_letter(M_MASKS["m"]), 12, 14)
-    else:
-        paste(g, shade_letter(M_MASKS["app16"]), 1, 1)
+    m = letter(APP_M[size])
+    paste(g, m, (size - len(m[0])) // 2, (size - len(m)) // 2)
     return g
 
 
@@ -246,21 +186,55 @@ def uninstall_icon(size):
     return g
 
 
-def doc_icon(size):
+def label(grid, x, y, scale):
+    for dy, row in enumerate(LABEL):
+        for dx, c in enumerate(row):
+            if c == "#":
+                for sy in range(scale):
+                    for sx in range(scale):
+                        grid[y + dy * scale + sy][x + dx * scale + sx] = "K"
+
+
+def doc_icon_center(size):
+    """A sheet with the M in the middle."""
     g = blank(size)
     if size == 48:
-        lines = [(9 + 4 * i, 12, e, 2) for i, e in enumerate([30, 25, 32, 28, 22, 26, 18])]
-        draw_sheet(g, 7, 1, 39, 46, 10, lines)
-        paste(g, shade_letter(M_MASKS["s"], left_light=False), 27, 35)
+        draw_sheet(g, 6, 1, 41, 46, 10, [(9 + 4 * i, 11, e, 2) for i, e in enumerate([26, 22])])
+        x0, x1, y0 = 6, 41, 19
     elif size == 32:
-        lines = [(6 + 3 * i, 8, e, 1) for i, e in enumerate([20, 16, 21, 18, 14, 17])]
-        draw_sheet(g, 5, 1, 26, 30, 7, lines)
-        paste(g, shade_letter(M_MASKS["xs"], left_light=False), 17, 22)
+        draw_sheet(g, 4, 1, 27, 30, 7, [(6 + 3 * i, 7, e, 1) for i, e in enumerate([18, 15])])
+        x0, x1, y0 = 4, 27, 13
     else:
-        lines = [(4 + 2 * i, 5, e, 1) for i, e in enumerate([10, 8, 11])]
-        draw_sheet(g, 2, 0, 13, 15, 4, lines)
-        paste(g, shade_letter(M_MASKS["xs"], left_light=False), 6, 8)
+        draw_sheet(g, 2, 0, 13, 15, 4, [])
+        x0, x1, y0 = 2, 13, 4
+    m = letter(CENTER_M[size])
+    paste(g, m, x0 + (x1 - x0 + 1 - len(m[0])) // 2, y0)
     return g
+
+
+def doc_icon_label(size):
+    """A sheet with ".md" written on it and the M in the corner."""
+    g = blank(size)
+    if size == 48:
+        draw_sheet(g, 6, 1, 39, 46, 10, [(9 + 4 * i, 11, e, 2) for i, e in enumerate([26, 22, 30])])
+        label(g, 10, 24, 2)
+        m = letter(CORNER_M[48])
+        paste(g, m, 48 - len(m[0]), 48 - len(m))
+    elif size == 32:
+        draw_sheet(g, 4, 1, 26, 30, 7, [(6 + 3 * i, 7, e, 1) for i, e in enumerate([18, 15, 21])])
+        label(g, 7, 15, 1)
+        m = letter(CORNER_M[32])
+        paste(g, m, 32 - len(m[0]), 32 - len(m))
+    else:
+        draw_sheet(g, 1, 0, 14, 15, 3, [])
+        label(g, 2, 4, 1)
+        m = letter(CORNER_M[16])
+        paste(g, m, 16 - len(m[0]), 16 - len(m))
+    return g
+
+
+# MINUTA_DOC_ICON=center picks the other document design; "label" is the default.
+doc_icon = doc_icon_center if os.environ.get("MINUTA_DOC_ICON") == "center" else doc_icon_label
 
 
 def to_image(grid, depth):
@@ -348,3 +322,8 @@ if __name__ == "__main__":
     build("MINUTA", app_icon)
     build("MINUTADOC", doc_icon)
     build("MINUTAUN", uninstall_icon)
+    # Both document designs, for comparison only (not written to res/).
+    for name, maker in (("doc-label", doc_icon_label), ("doc-center", doc_icon_center)):
+        for s in (16, 32, 48):
+            for depth in (4, 8):
+                to_image(maker(s), depth).save(PNG / f"{name}-{s}-{depth}bit.png")
