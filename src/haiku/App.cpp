@@ -1,5 +1,7 @@
+#include <AppFileInfo.h>
 #include <Application.h>
 #include <Entry.h>
+#include <File.h>
 #include <FilePanel.h>
 #include <Mime.h>
 #include <Roster.h>
@@ -10,6 +12,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 
 #include "Constants.h"
@@ -185,32 +188,49 @@ App::_Open(const entry_ref& ref)
 }
 
 
+// True when the MIME database holds exactly the icons built into this
+// executable: the app icon, and the icon for Markdown files.
+static bool
+RegisteredIconsMatch(const BMimeType& self, BAppFileInfo& executable)
+{
+	uint8* registered[2] = { NULL, NULL };
+	size_t registeredSize[2] = { 0, 0 };
+	uint8* built[2] = { NULL, NULL };
+	size_t builtSize[2] = { 0, 0 };
+	bool match = self.GetIcon(&registered[0], &registeredSize[0]) == B_OK
+		&& self.GetIconForType(MARKDOWN_TYPE, &registered[1], &registeredSize[1]) == B_OK
+		&& executable.GetIcon(&built[0], &builtSize[0]) == B_OK
+		&& executable.GetIconForType(MARKDOWN_TYPE, &built[1], &builtSize[1]) == B_OK;
+	for (int i = 0; i < 2; i++) {
+		match = match && registeredSize[i] > 0 && registeredSize[i] == builtSize[i]
+			&& memcmp(registered[i], built[i], builtSize[i]) == 0;
+		free(registered[i]);
+		free(built[i]);
+	}
+	return match;
+}
+
+
 // Offers Minuta as the handler for Markdown files unless the user already
 // picked one. Activating a package doesn't enter its apps into the MIME
-// database, and an entry made by an older build keeps no icons, so Tracker
-// would show generic icons for the app and for .md files: when our entry
-// lacks either icon, register the running executable (what `mimeset -a -F`
-// does).
+// database, an entry made by an older build keeps no icons, and one made by
+// an older version keeps its icons after an upgrade, so Tracker would show
+// generic or stale icons for the app and for .md files: unless our entry has
+// this executable's icons, register the running executable (what
+// `mimeset -a -F` does).
 void
 App::_RegisterFileType()
 {
 	BMimeType self(APP_SIGNATURE);
-	uint8* icon = NULL;
-	size_t iconSize = 0;
-	uint8* documentIcon = NULL;
-	size_t documentIconSize = 0;
-	// `mimeset -f` (as in the build) registers the app icon but not the
-	// icon for text/markdown, so check both.
-	if (self.GetIcon(&icon, &iconSize) != B_OK || iconSize == 0
-		|| self.GetIconForType(MARKDOWN_TYPE, &documentIcon, &documentIconSize) != B_OK
-		|| documentIconSize == 0) {
-		app_info info;
+	app_info info;
+	BFile file;
+	BAppFileInfo executable;
+	if (GetAppInfo(&info) == B_OK && file.SetTo(&info.ref, B_READ_ONLY) == B_OK
+		&& executable.SetTo(&file) == B_OK && !RegisteredIconsMatch(self, executable)) {
 		BPath path;
-		if (GetAppInfo(&info) == B_OK && path.SetTo(&info.ref) == B_OK)
+		if (path.SetTo(&info.ref) == B_OK)
 			create_app_meta_mime(path.Path(), false, true, B_UPDATE_MIME_INFO_FORCE_UPDATE_ALL);
 	}
-	free(icon);
-	free(documentIcon);
 
 	BMimeType type(MARKDOWN_TYPE);
 	if (!type.IsInstalled())
