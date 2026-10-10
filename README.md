@@ -20,7 +20,7 @@ written for its system.
 | ![Focus mode fades everything but the current sentence](docs/shots/focus.png) | ![Night theme](docs/shots/night.png) |
 | ![Preview of the rendered document](docs/shots/preview.png) | ![Full screen](docs/shots/fullscreen.png) |
 
-![The Minuta icon in Explorer](docs/shots/explorer.png)
+![Minuta in Explorer: two Markdown documents, the editor and its uninstaller](docs/shots/explorer.png)
 
 ## Haiku
 
@@ -133,8 +133,10 @@ and 5 understand. The other options are md4c's; see `--help`.
 
 **Windows 98 and DOS.** You need
 [Open Watcom 2.0](https://github.com/open-watcom/open-watcom-v2), GNU make,
-and clang for the tests. The Makefile looks for Open Watcom in
-`~/vms/retro/toolchain/ow2`; set `WATCOM` to use another location.
+and clang for the tests; `make dist` also needs makensis 3 and zip. The
+Makefile looks for Open Watcom in `~/vms/retro/toolchain/ow2` and builds on
+an Apple Silicon Mac or on x86-64 Linux; set `WATCOM` to use another
+location.
 
     make win    # build/bin/MINUTA.EXE and build/bin/MD2HTMLW.EXE
     make dos    # build/bin/MD2HTMLD.EXE
@@ -153,8 +155,10 @@ The code in `src/core` is plain C and is tested on the host with
 `src/cli` is md2html. `tests/vm` has the scripts that drive the Windows 98,
 FreeDOS and MS-DOS 6.22 virtual machines, and `tools/haiku-vm` and
 `tests/haiku` do the same for a Haiku virtual machine; they were used to
-test the programs and take these screenshots. The Markdown parser is md4c
-0.6.0, in `vendor/md4c`.
+test the programs and take these screenshots. The icons are drawn by
+`tools/icons/win98.py` (pixel grids for `res/*.ICO`) and
+`tools/icons/haiku.py` (vector icons for `src/haiku/Icons.rdef`). The
+Markdown parser is md4c 0.6.0, in `vendor/md4c`.
 
 ## Samples
 
