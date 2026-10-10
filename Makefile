@@ -3,15 +3,17 @@
 #   make dos   MD2HTMLD.EXE (DOS/32A, self-contained)
 #   make test  core unit tests, built natively
 # Open Watcom 2.0 lives in ~/vms/retro/toolchain by default; override WATCOM.
+# Its host binaries: armo64 on an Apple Silicon Mac, binl64 on x86-64 Linux.
 
 WATCOM ?= $(HOME)/vms/retro/toolchain/ow2
+OW_HOST ?= $(if $(filter Linux,$(shell uname -s)),binl64,armo64)
 export WATCOM
-export PATH := $(WATCOM)/armo64:$(PATH):$(WATCOM)/binw
+export PATH := $(WATCOM)/$(OW_HOST):$(PATH):$(WATCOM)/binw
 export INCLUDE := $(WATCOM)/h
 
 CC := clang
-OWCC := $(WATCOM)/armo64/owcc
-WRC := $(WATCOM)/armo64/wrc
+OWCC := $(WATCOM)/$(OW_HOST)/owcc
+WRC := $(WATCOM)/$(OW_HOST)/wrc
 
 BUILD := build
 OUT := $(BUILD)/bin
