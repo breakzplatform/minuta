@@ -1,7 +1,7 @@
 # Minuta build.
 #   make win   MINUTA.EXE (Win32 GUI) and MD2HTMLW.EXE (Win32 console)
 #   make dos   MD2HTMLD.EXE (DOS/32A, self-contained)
-#   make test  core unit tests, built natively
+#   make test  core unit tests, built natively, and packaging checks
 # Open Watcom 2.0 lives in ~/vms/retro/toolchain by default; override WATCOM.
 # Its host binaries: armo64 on an Apple Silicon Mac, binl64 on x86-64 Linux.
 
@@ -107,6 +107,7 @@ $(HOST_DIR)/md2html: $(HOST_CLI) $(call objects,$(HOST_DIR),$(CLI_CORE_SRC),o) $
 test: $(HOST_DIR)/unit-tests $(HOST_DIR)/md2html
 	$(HOST_DIR)/unit-tests
 	tests/cli/run.sh $(HOST_DIR)/md2html
+	tests/packaging/run.sh
 
 -include $(wildcard $(HOST_DIR)/*.d)
 
@@ -119,13 +120,14 @@ $(NT_DIR) $(DOS_DIR) $(HOST_DIR) $(OUT):
 	mkdir -p $@
 
 # Release ZIPs and installer (makensis 3, ANSI build); text files in CRLF,
-# README.TXT in Windows-1252.
+# README.TXT and the examples (installer only) in Windows-1252.
 dist: win dos
 	rm -rf $(DIST)
 	mkdir -p $(DIST)/win98 $(DIST)/dos
 	cp $(OUT)/MINUTA.EXE $(OUT)/MD2HTMLW.EXE $(DIST)/win98/
 	iconv -f UTF-8 -t CP1252 dist/README.TXT | LC_ALL=C sed 's/$$/\r/' > $(DIST)/win98/README.TXT
 	LC_ALL=C sed 's/$$/\r/' LICENSE > $(DIST)/win98/LICENSE.TXT
+	tools/examples.sh windows $(DIST)/win98/Examples
 	cp $(OUT)/MD2HTMLD.EXE $(DIST)/win98/LICENSE.TXT $(DIST)/dos/
 	cd $(DIST)/win98 && zip -X -q ../minuta-$(VERSION)-win98.zip MINUTA.EXE MD2HTMLW.EXE README.TXT LICENSE.TXT
 	cd $(DIST)/dos && zip -X -q ../minuta-$(VERSION)-dos.zip MD2HTMLD.EXE LICENSE.TXT

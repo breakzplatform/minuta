@@ -50,7 +50,8 @@ Get the files from the
   Start menu entry and makes Minuta the program for `.md` and `.markdown`
   files, so double-clicking one opens it. If another program had `.md`
   before, the uninstaller gives it back; otherwise it removes the
-  association.
+  association. It also installs a few example texts in the `Examples` folder,
+  with a Start menu shortcut to it.
 - `minuta-0.1.2-dos.zip` has `MD2HTMLD.EXE`, which runs on plain DOS (the
   DOS/32A extender is built in).
 
@@ -62,7 +63,8 @@ I have not tested. It needs `RICHED20.DLL`, which Windows 98 SE includes.
 `minuta-0.1.2-1-x86_64.hpkg` is a Haiku package. Double-click it and click
 Install in HaikuDepot, or run `pkgman install minuta-0.1.2-1-x86_64.hpkg`.
 Minuta then appears in Deskbar under Applications, and a `minuta` command
-opens files from Terminal. It runs on Haiku R1/beta6 and later, 64-bit.
+opens files from Terminal, and File > Open example shows the example texts
+that come with the package. It runs on Haiku R1/beta6 and later, 64-bit.
 [docs/haiku.md](docs/haiku.md) has more on installing and using it.
 
 ## Using Minuta
@@ -180,6 +182,12 @@ The anthem and the poem come from Wikisource and *Luar do Sertão* from
 Blocos Online. Each sample has 8.3 copies in Windows-1252 and code page 850
 for Windows 98 and DOS (`HINOPE.MD`, `POEMA.MD`, `LUAR.MD` and the `*850.MD`
 files); `tools/dos-samples.sh` rebuilds them from the originals.
+
+The three texts and the credits file `About the examples.md` are also the
+examples the installers ship: the Windows 98 installer puts them in `Examples`
+next to `MINUTA.EXE`, and the Haiku package in `data/Minuta/Examples`.
+`tools/examples.sh` stages them, converting to Windows-1252 with CRLF for
+Windows. The other samples are test files and are not installed.
 
 ## Why?
 

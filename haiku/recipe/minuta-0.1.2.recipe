@@ -47,4 +47,7 @@ INSTALL()
 	mkdir -p $appsDir
 	cp src/haiku/objects/Minuta $appsDir/
 	addAppDeskbarSymlink $appsDir/Minuta
+
+	# File > Open example looks in data/Minuta/Examples.
+	tools/examples.sh haiku $dataDir/Minuta/Examples
 }

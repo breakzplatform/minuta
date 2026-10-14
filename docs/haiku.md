@@ -32,6 +32,15 @@ it from Terminal with `minuta` or `minuta notes.md`. The first time it runs,
 it offers itself as the app for Markdown files (only if no other app has
 that job) and registers its icons.
 
+The package also installs a few example texts. In Minuta, File > Open
+example opens the file panel in the folder that has them; on disk it is
+`/system/data/Minuta/Examples` (`~/config/data/Minuta/Examples` if the
+package is in `~/config/packages`, and `~/config/non-packaged/data/Minuta/Examples`
+after `make install`). The folder belongs to the package and is read-only, so
+Save on an example opens the Save panel: pick a folder of yours, such as
+`~/Documents`, to keep an editable copy. Or copy the files in Tracker; the
+copies are yours to change. `About the examples.md` has the credits.
+
 To remove it, run `pkgman uninstall minuta`, or delete the file from
 `~/config/packages` if you installed it there.
 
@@ -42,7 +51,7 @@ default (gcc, make and the system headers). From the top of the repository:
 
     make -C src/haiku            # builds src/haiku/objects/Minuta
     make -C src/haiku install    # copies it to ~/config/non-packaged/apps
-                                 # and adds a `minuta` command
+                                 # and adds a `minuta` command and the examples
     make -C src/haiku package    # builds objects/minuta-0.1.2-1-x86_64.hpkg
 
 The build uses plain `g++` and `gcc` with `-Wall -Wextra` and should finish

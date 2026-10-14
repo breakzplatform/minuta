@@ -1,9 +1,11 @@
 # Haiku build of Minuta (run inside Haiku; see tools/haiku-vm/build).
 #   make          objects/Minuta
 #   make install  copy it to ~/config/non-packaged/apps and add a `minuta`
-#                 command to ~/config/non-packaged/bin
+#                 command to ~/config/non-packaged/bin; the examples go to
+#                 ~/config/non-packaged/data/Minuta/Examples
 #   make package  objects/minuta-VERSION-ARCH.hpkg (app in apps/, a
-#                 `minuta` command and a Deskbar entry)
+#                 `minuta` command, a Deskbar entry and the examples in
+#                 data/Minuta/Examples)
 #   make clean
 # Plain g++/gcc: the core and md4c are C, the shell is C++ on the BeAPI.
 
@@ -32,6 +34,7 @@ APP_OBJ := $(addprefix $(OBJ)/,$(APP_SRC:.cpp=.o))
 
 APPS_DIR = $(shell finddir B_USER_NONPACKAGED_DIRECTORY)/apps
 BIN_DIR = $(shell finddir B_USER_NONPACKAGED_BIN_DIRECTORY)
+DATA_DIR = $(shell finddir B_USER_NONPACKAGED_DATA_DIRECTORY)
 
 VERSION := 0.1.2-1
 ARCH = $(shell getarch)
@@ -67,8 +70,10 @@ install: $(APP)
 	cp $(APP) $(APPS_DIR)/Minuta
 	mimeset -f $(APPS_DIR)/Minuta
 	ln -sf $(APPS_DIR)/Minuta $(BIN_DIR)/minuta
+	rm -rf $(DATA_DIR)/Minuta/Examples
+	$(ROOT)/tools/examples.sh haiku $(DATA_DIR)/Minuta/Examples
 
-package: $(APP) PackageInfo.in $(ROOT)/LICENSE
+package: $(APP) PackageInfo.in $(ROOT)/LICENSE $(ROOT)/tools/examples.sh
 	rm -rf $(STAGE) $(PACKAGE)
 	mkdir -p $(STAGE)/apps $(STAGE)/bin $(STAGE)/data/deskbar/menu/Applications \
 		$(STAGE)/documentation/packages/minuta
@@ -78,6 +83,7 @@ package: $(APP) PackageInfo.in $(ROOT)/LICENSE
 	ln -s ../apps/Minuta $(STAGE)/bin/minuta
 	ln -s ../../../../apps/Minuta $(STAGE)/data/deskbar/menu/Applications/Minuta
 	cp $(ROOT)/LICENSE $(STAGE)/documentation/packages/minuta/LICENSE
+	$(ROOT)/tools/examples.sh haiku $(STAGE)/data/Minuta/Examples
 	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@ARCH@/$(ARCH)/g' PackageInfo.in \
 		> $(STAGE)/.PackageInfo
 	package create -C $(STAGE) $(PACKAGE)

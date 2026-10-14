@@ -16,6 +16,11 @@ Unzip everything into a folder of your choice and run MINUTA.EXE. There is
 nothing to install. Minuta saves its settings in MINUTA.INI in the same
 folder. It needs RICHED20.DLL, which comes with Windows 98 SE.
 
+The installer (minuta-VERSION-setup.exe) also puts a few example texts in
+the Examples folder next to MINUTA.EXE; the Start menu has a shortcut to it.
+They are in Portuguese and in the public domain; "About the examples.md"
+has the credits. Use Save as to keep your own copy of one.
+
 Keys
 
   Ctrl+O, Ctrl+S, Ctrl+Shift+S   open, save, save as
