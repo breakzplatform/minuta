@@ -7,6 +7,8 @@
 #include <Roster.h>
 #include <MimeType.h>
 #include <Path.h>
+#include <PathFinder.h>
+#include <StringList.h>
 #include <Screen.h>
 #include <Window.h>
 
@@ -20,6 +22,20 @@
 #include "Settings.h"
 
 static const float kCascadeStep = 24;
+
+
+// The examples are installed in data/Minuta/Examples: /system/data for the
+// package, ~/config/data or ~/config/non-packaged/data for the other installs.
+static bool
+find_examples(entry_ref* ref)
+{
+	BStringList paths;
+	if (BPathFinder::FindPaths(B_FIND_PATH_DATA_DIRECTORY, "Minuta/Examples",
+			B_FIND_PATH_EXISTING_ONLY, paths) != B_OK || paths.IsEmpty()) {
+		return false;
+	}
+	return get_ref_for_path(paths.StringAt(0).String(), ref) == B_OK;
+}
 
 
 class App : public BApplication {
@@ -119,12 +135,18 @@ App::MessageReceived(BMessage* message)
 			_NewWindow()->Show();
 			break;
 		case MSG_OPEN:
+		case MSG_OPEN_EXAMPLE:
+		{
 			if (fOpenPanel == NULL) {
 				fOpenPanel = new BFilePanel(B_OPEN_PANEL, NULL, NULL, B_FILE_NODE, true);
 				fOpenPanel->Window()->SetTitle("Minuta: Open");
 			}
+			entry_ref examples;
+			if (message->what == MSG_OPEN_EXAMPLE && find_examples(&examples))
+				fOpenPanel->SetPanelDirectory(&examples);
 			fOpenPanel->Show();
 			break;
+		}
 		case MSG_WINDOW_CLOSED:
 			if (--fWindowCount <= 0)
 				PostMessage(B_QUIT_REQUESTED);

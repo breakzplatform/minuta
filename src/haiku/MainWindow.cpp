@@ -14,6 +14,7 @@
 #include <Roster.h>
 #include <Screen.h>
 #include <ScrollView.h>
+#include <Volume.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -145,6 +146,7 @@ MainWindow::_BuildMenus()
 	BMenu* file = new BMenu("File");
 	add_item(file, "New", MSG_NEW, 'N');
 	add_item(file, "Open" B_UTF8_ELLIPSIS, MSG_OPEN, 'O');
+	add_item(file, "Open example" B_UTF8_ELLIPSIS, MSG_OPEN_EXAMPLE);
 	file->AddSeparatorItem();
 	add_item(file, "Save", MSG_SAVE, 'S');
 	add_item(file, "Save as" B_UTF8_ELLIPSIS, MSG_SAVE_AS, 'S', B_SHIFT_KEY);
@@ -318,6 +320,7 @@ MainWindow::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case MSG_NEW:
 		case MSG_OPEN:
+		case MSG_OPEN_EXAMPLE:
 			be_app->PostMessage(message);
 			break;
 
@@ -493,8 +496,10 @@ MainWindow::QuitRequested()
 				_ShowSavePanel(B_SAVE_REQUESTED);
 				return false;
 			}
+			fCloseAfterSave = true;
 			if (_Save() != B_OK)
 				return false;
+			fCloseAfterSave = false;
 		}
 	}
 	gSettings.frame = fFullScreen ? fWindowedFrame : Frame();
@@ -549,6 +554,13 @@ MainWindow::_ShowSavePanel(uint32 what)
 status_t
 MainWindow::_Save()
 {
+	// The installed examples are on the read-only package file system: ask
+	// where to save a copy instead of failing.
+	BVolume volume(fRef.device);
+	if (volume.InitCheck() == B_OK && volume.IsReadOnly()) {
+		_ShowSavePanel(B_SAVE_REQUESTED);
+		return B_CANCELED;
+	}
 	BEntry entry(&fRef);
 	BEntry parent;
 	entry_ref directory;
