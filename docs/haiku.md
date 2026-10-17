@@ -37,8 +37,8 @@ example opens the file panel in the folder that has them; on disk it is
 `/system/data/Minuta/Examples` (`~/config/data/Minuta/Examples` if the
 package is in `~/config/packages`, and `~/config/non-packaged/data/Minuta/Examples`
 after `make install`). The folder belongs to the package and is read-only, so
-Save on an example opens the Save panel: pick a folder of yours, such as
-`~/Documents`, to keep an editable copy. Or copy the files in Tracker; the
+Save on an example opens the Save panel in `~/Documents` (your home folder
+if there is none), to keep an editable copy there. Or copy the files in Tracker; the
 copies are yours to change. `About the examples.md` has the credits.
 
 To remove it, run `pkgman uninstall minuta`, or delete the file from

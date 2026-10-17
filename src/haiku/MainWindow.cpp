@@ -5,6 +5,7 @@
 #include <Beep.h>
 #include <File.h>
 #include <FilePanel.h>
+#include <FindDirectory.h>
 #include <LayoutBuilder.h>
 #include <Menu.h>
 #include <MenuBar.h>
@@ -34,6 +35,15 @@ extern "C" {
 #include "md4c.h"
 #include "stats_utf8.h"
 }
+
+// The installed examples live on the read-only package file system.
+static bool
+IsOnReadOnlyVolume(const entry_ref& ref)
+{
+	BVolume volume(ref.device);
+	return volume.InitCheck() == B_OK && volume.IsReadOnly();
+}
+
 
 static const int32 kColumnWidths[] = { 50, 64, 72, 80 };
 static const float kMinTextWidth = 320;
@@ -541,7 +551,15 @@ MainWindow::_ShowSavePanel(uint32 what)
 	} else
 		fSavePanel->Window()->SetTitle("Minuta: Save");
 	fSavePanel->SetSaveText(name);
-	if (fHasRef) {
+	if (fHasRef && IsOnReadOnlyVolume(fRef)) {
+		BPath home;
+		if (find_directory(B_USER_DIRECTORY, &home) == B_OK) {
+			BPath documents(home.Path(), "Documents");
+			BEntry entry(documents.Path());
+			fSavePanel->SetPanelDirectory(
+				entry.IsDirectory() ? documents.Path() : home.Path());
+		}
+	} else if (fHasRef) {
 		BEntry entry(&fRef);
 		BEntry parent;
 		if (entry.GetParent(&parent) == B_OK)
@@ -554,10 +572,8 @@ MainWindow::_ShowSavePanel(uint32 what)
 status_t
 MainWindow::_Save()
 {
-	// The installed examples are on the read-only package file system: ask
-	// where to save a copy instead of failing.
-	BVolume volume(fRef.device);
-	if (volume.InitCheck() == B_OK && volume.IsReadOnly()) {
+	// Ask where to save a copy of an installed example instead of failing.
+	if (IsOnReadOnlyVolume(fRef)) {
 		_ShowSavePanel(B_SAVE_REQUESTED);
 		return B_CANCELED;
 	}
