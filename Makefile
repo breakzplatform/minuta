@@ -127,10 +127,11 @@ dist: win dos
 	cp $(OUT)/MINUTA.EXE $(OUT)/MD2HTMLW.EXE $(DIST)/win98/
 	iconv -f UTF-8 -t CP1252 dist/README.TXT | LC_ALL=C sed 's/$$/\r/' > $(DIST)/win98/README.TXT
 	LC_ALL=C sed 's/$$/\r/' LICENSE > $(DIST)/win98/LICENSE.TXT
+	iconv -f UTF-8 -t CP1252 NOTICE | LC_ALL=C sed 's/$$/\r/' > $(DIST)/win98/NOTICE.TXT
 	tools/examples.sh windows $(DIST)/win98/Examples
-	cp $(OUT)/MD2HTMLD.EXE $(DIST)/win98/LICENSE.TXT $(DIST)/dos/
-	cd $(DIST)/win98 && zip -X -q ../minuta-$(VERSION)-win98.zip MINUTA.EXE MD2HTMLW.EXE README.TXT LICENSE.TXT
-	cd $(DIST)/dos && zip -X -q ../minuta-$(VERSION)-dos.zip MD2HTMLD.EXE LICENSE.TXT
+	cp $(OUT)/MD2HTMLD.EXE $(DIST)/win98/LICENSE.TXT $(DIST)/win98/NOTICE.TXT $(DIST)/dos/
+	cd $(DIST)/win98 && zip -X -q ../minuta-$(VERSION)-win98.zip MINUTA.EXE MD2HTMLW.EXE README.TXT LICENSE.TXT NOTICE.TXT
+	cd $(DIST)/dos && zip -X -q ../minuta-$(VERSION)-dos.zip MD2HTMLD.EXE LICENSE.TXT NOTICE.TXT
 	cd dist && makensis -V2 -DVERSION=$(VERSION) minuta.nsi
 	ls -l $(DIST)/*.zip $(DIST)/*.exe
 

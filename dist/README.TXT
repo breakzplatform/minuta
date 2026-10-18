@@ -11,6 +11,7 @@ Files in this ZIP:
   MD2HTMLW.EXE   Markdown to HTML converter for the Windows console
   README.TXT     this file
   LICENSE.TXT    GNU GPL v3 license
+  NOTICE.TXT     copyright and the additional terms of the license
 
 Unzip everything into a folder of your choice and run MINUTA.EXE. There is
 nothing to install. Minuta saves its settings in MINUTA.INI in the same

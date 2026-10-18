@@ -195,5 +195,7 @@ Why not?
 
 ## License
 
-GPL-3.0-only with additional terms, see [LICENSE](LICENSE) and [NOTICE](NOTICE). md4c is also under the MIT license, in
-`vendor/md4c/LICENSE.md`.
+GPL-3.0-only with additional terms, see [LICENSE](LICENSE) and [NOTICE](NOTICE):
+forks keep the credit ("Based on Minuta by Joselito") and need their own name
+and icon ([TRADEMARKS.md](TRADEMARKS.md)). md4c keeps its MIT license, in
+`vendor/md4c/LICENSE.md`. Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).

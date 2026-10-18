@@ -73,7 +73,7 @@ install: $(APP)
 	rm -rf $(DATA_DIR)/Minuta/Examples
 	$(ROOT)/tools/examples.sh haiku $(DATA_DIR)/Minuta/Examples
 
-package: $(APP) PackageInfo.in $(ROOT)/LICENSE $(ROOT)/tools/examples.sh
+package: $(APP) PackageInfo.in $(ROOT)/LICENSE $(ROOT)/NOTICE $(ROOT)/tools/examples.sh
 	rm -rf $(STAGE) $(PACKAGE)
 	mkdir -p $(STAGE)/apps $(STAGE)/bin $(STAGE)/data/deskbar/menu/Applications \
 		$(STAGE)/documentation/packages/minuta
@@ -83,6 +83,7 @@ package: $(APP) PackageInfo.in $(ROOT)/LICENSE $(ROOT)/tools/examples.sh
 	ln -s ../apps/Minuta $(STAGE)/bin/minuta
 	ln -s ../../../../apps/Minuta $(STAGE)/data/deskbar/menu/Applications/Minuta
 	cp $(ROOT)/LICENSE $(STAGE)/documentation/packages/minuta/LICENSE
+	cp $(ROOT)/NOTICE $(STAGE)/documentation/packages/minuta/NOTICE
 	$(ROOT)/tools/examples.sh haiku $(STAGE)/data/Minuta/Examples
 	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@ARCH@/$(ARCH)/g' PackageInfo.in \
 		> $(STAGE)/.PackageInfo
