@@ -441,7 +441,8 @@ void
 EditorView::_StateAt(int32 offset, scan_state* state) const
 {
 	scan_state_init(state);
-	char line[kFenceLineLimit];
+	// GetText writes a terminating NUL after size bytes.
+	char line[kFenceLineLimit + 1];
 	int32 length = TextLength();
 	for (size_t i = 0; i < fFences.size() && fFences[i] < offset; i++) {
 		int32 start = fFences[i];
