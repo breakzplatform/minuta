@@ -36,7 +36,7 @@ APPS_DIR = $(shell finddir B_USER_NONPACKAGED_DIRECTORY)/apps
 BIN_DIR = $(shell finddir B_USER_NONPACKAGED_BIN_DIRECTORY)
 DATA_DIR = $(shell finddir B_USER_NONPACKAGED_DATA_DIRECTORY)
 
-VERSION := 0.1.2-1
+VERSION := 0.1.3-1
 ARCH = $(shell getarch)
 PACKAGE = $(OBJ)/minuta-$(VERSION)-$(ARCH).hpkg
 STAGE := $(OBJ)/package

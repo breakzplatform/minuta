@@ -4,7 +4,7 @@ Unicode false
 SetCompressor /SOLID lzma
 
 !ifndef VERSION
-  !define VERSION "0.1.2"
+  !define VERSION "0.1.3"
 !endif
 
 Name "Minuta ${VERSION}"
